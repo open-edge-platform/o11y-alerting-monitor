@@ -1,0 +1,185 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alerting-monitor.fullname" . }}
+  labels:
+    {{- include "alerting-monitor.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "alerting-monitor.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "alerting-monitor.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: alerting-monitor
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "-config={{ .Values.configmap.mountPath }}/config.yaml"
+            - "--log-level={{ .Values.logLevel }}"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - >-
+                  curl --silent -X GET http://localhost:8080/api/v1/status |
+                  grep -q -e '^{\"state\":\"ready\"}$'
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/status
+              scheme: HTTP
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: config
+              mountPath: {{ .Values.configmap.mountPath }}
+              readOnly: true
+            - name: destination-ca
+              mountPath: /etc/ssl/certs
+              readOnly: true
+          env:
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGDATABASE
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGHOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGPORT
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGPASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGUSER
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            {{- if .Values.smtp.initialize }}
+            - name: FROM_MAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'from'
+            - name: SMART_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'smartHost'
+            - name: SMART_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'smartPort'
+            {{- if .Values.smtp.userPasswordAuth }}
+            - name: SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'authUsername'
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.passwordSecret.name }}
+                  key: {{ .Values.smtp.passwordSecret.key }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+        - name: open-policy-agent
+          image: {{ .Values.openPolicyAgent.image.repository }}:{{ .Values.openPolicyAgent.image.tag }}
+          imagePullPolicy: {{ .Values.openPolicyAgent.image.pullPolicy }}
+          args:
+            - "run"
+            - "--server"
+            - {{ .Values.openPolicyAgent.config.path }}
+            - "--log-level"
+            - {{ .Values.openPolicyAgent.config.logLevel }}
+            - "--addr"
+            - "localhost:8181"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: {{ .Chart.Name }}-opa-cm
+              mountPath: {{ .Values.openPolicyAgent.config.path }}
+              readOnly: true
+          ports:
+            - name: opa
+              containerPort: 8181
+              protocol: TCP
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: alerting-monitor
+      volumes:
+        - name: config
+          configMap:
+            name: "alert-monitor-config"
+            items:
+              - key: config.yaml
+                path: config.yaml
+        - name: {{ .Chart.Name }}-opa-cm
+          configMap:
+            name: {{ .Chart.Name }}-opa-cm
+        - name: destination-ca
+          secret:
+            secretName: {{ .Values.caSecretName }}
+            items:
+              - key: {{ .Values.caSecretKey }}
+                path: ca-certificates.crt

@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+.idea
+.vscode
+api/boilerplate
+build/
+deployments/alerting-monitor/Chart.lock
+deployments/alerting-monitor/charts/

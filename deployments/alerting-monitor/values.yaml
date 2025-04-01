@@ -1,0 +1,153 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# HPA replica parameters
+minReplicas: 2
+maxReplicas: 5
+
+image:
+  registry: registry-rs.edgeorchestration.intel.com/edge-orch
+  repository: o11y/alerting-monitor
+  pullPolicy: IfNotPresent
+
+management:
+  registry: registry-rs.edgeorchestration.intel.com/edge-orch
+  repository: o11y/alerting-monitor-management
+  pullPolicy: IfNotPresent
+
+devMode: false
+logLevel: "info"  # accepted values: "debug", "info", "warn", "error"
+
+initialRules:
+  init: true
+  hostRules: true                 # alert rules connected with host eg. ram usage
+  appDeploymentRules: true        # alert rules connected with app deployment eg. deployment status
+  clusterRules: true              # alert rules connected with cluster eg. cpu usage clusterwide
+  evaluationIntervalSeconds: 30         # how often should the rules be evaluated (eg. 30s, 2m, 1h)
+  hostAggregationWindowSeconds: 120       # size of time window for aggregating in host performance rules
+  clusterAggregationWindowSeconds: 300    # size of time window for aggregating in cluster performance rules
+
+mimir:
+  namespace: alerting-monitor
+  tenant: "edgenode-system"
+  rulerEndpoint: "http://edgenode-observability-mimir-ruler.orch-infra.svc.cluster.local:8080"
+
+alertmanagerNamespace: orch-infra
+
+webUIAddress: "https://intel.com"
+observabilityUIAddress: "https://intel.com"
+
+smtp:
+  initialize: false
+  configSecret: smtp
+  userPasswordAuth: true
+  passwordSecret:
+    name: smtp-auth
+    key: password
+  requireTls: true
+  insecureSkipVerify: false
+
+openPolicyAgent:
+  image:
+    repository: openpolicyagent/opa
+    tag: 1.0.1-static
+    pullPolicy: IfNotPresent
+  config:
+    path: /etc/opa/rego
+    logLevel: info
+    profile: "multitenant"  # accepted values: "multitenant", "legacy", "compressed"
+
+keycloakM2MClient: "alerts-m2m-client"
+
+authentication:
+  oidcServer: "https://keycloak.kind.internal"
+  oidcServerRealm: master
+
+caSecretName: tls-orch
+caSecretKey: ca.crt
+
+configmap:
+  mountPath: "/etc/config"
+
+alertManagerConfig:
+  groupWait: 30s
+  # groupInterval should not exceed repeatInterval
+  groupInterval: 5m
+  repeatInterval: 4h
+
+database:
+  # On AWS instead of local it should be aurora - this is templated on `orch-` repositories level
+  databaseSecret: alerting-local-postgresql
+  # True on AWS deployment, false on dev environment
+  ssl: false
+
+vault:
+  host: http://vault.orch-platform.svc.cluster.local:8200
+  expirationPeriod: 8h
+  kubernetesRole: orch-svc
+
+import:
+  alertmanager:
+    enabled: true
+
+alertmanager:
+  image:
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  extraArgs:
+    "config.file": /etc/alertmanager/custom.yaml
+  resources:
+    limits:
+      cpu: 10000m
+      memory: 2Gi
+    requests:
+      cpu: 20m
+      memory: 64Mi
+  configmapReload:
+    image:
+      repository: quay.io/prometheus-operator/prometheus-config-reloader
+      tag: v0.79.2
+      pullPolicy: IfNotPresent
+    enabled: true
+    resources:
+      limits:
+        cpu: 250m
+        memory: 128Mi
+      requests:
+        cpu: 1m
+        memory: 32Mi
+    extraVolumeMounts:
+      - mountPath: /etc/alertmanager/
+        name: alertmanager-config
+        readOnly: true
+  extraSecretMounts:
+    - name: alertmanager-config
+      mountPath: /etc/alertmanager/
+      subPath: ""
+      secretName: alert-monitor-config
+      readOnly: true
+  extraVolumeMounts:
+    - name: alertmanager-email-template
+      mountPath: /etc/alertmanager/templates
+      readOnly: true
+  extraVolumes:
+    - name: alertmanager-email-template
+      configMap:
+        name: alertmanager-email-template
+
+traefik:
+  matchRoute: alerting-monitor.domain
+  gatewayNamespace: orch-gateway
+  secretName: tls-orch
+  tlsOption: gateway-tls
+
+multitenantGatewayEnabled: false
+tenantController:
+  namespace: orch-platform
+
+taskExecutor:
+  uuidLimit: 3
+  retryLimit: 10
+  taskTimeout: 10m
+  retentionTime: 240h
+  dbPoolingRate: 10s

@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+{{- if .Values.smtp.initialize }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: initialize-smtp-config
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    metadata:
+      name: initialize-smtp-config
+    spec:
+      serviceAccountName: alerting-monitor
+      containers:
+        - name: initialize-smtp-config
+          image: portainer/kubectl-shell
+          command: [ "/bin/bash", "-c" ]
+          args:
+            - |
+              /bin/script/initialize-smtp-config-script.sh;
+              SCRIPT_EXIT_CODE=$?;
+               echo "script executed with exit code $SCRIPT_EXIT_CODE";
+               if [ $SCRIPT_EXIT_CODE -eq 0 ]; then
+                 for i in $(seq 1 10); do
+                   wget --post-data="" http://127.0.0.1:15020/quitquitquit && sleep 1;
+                 done;
+               fi;
+               exit $SCRIPT_EXIT_CODE
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /etc/secret-volume
+              readOnly: true
+            - name: smtp-config-script-volume
+              mountPath: /bin/script
+              readOnly: true
+            - name: smtp-serviceentry
+              mountPath: /etc/smtp
+              readOnly: true
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            allowPrivilegeEscalation: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      restartPolicy: OnFailure
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: {{ .Values.smtp.configSecret }}
+        - name: smtp-config-script-volume
+          configMap:
+            defaultMode: 0777
+            name: initialize-smtp-config-script
+            items:
+              - key: initialize-smtp-config-script.sh
+                path: initialize-smtp-config-script.sh
+        - name: smtp-serviceentry
+          secret:
+            defaultMode: 0777
+            secretName: smtp-serviceentry
+            items:
+              - key: smtp-serviceentry.yaml
+                path: smtp-serviceentry.yaml
+  backoffLimit: 6
+  completions: 1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: initialize-smtp-config-script
+data:
+  initialize-smtp-config-script.sh: |
+    #!/bin/bash
+    HOST=$(cat /etc/secret-volume/smartHost)
+    PORT=$(cat /etc/secret-volume/smartPort)
+
+    cp /etc/smtp/smtp-serviceentry.yaml /tmp/smtp-serviceentry.yaml
+    sed -i "s/<host>/${HOST}/g" /tmp/smtp-serviceentry.yaml
+    sed -i "s/<port>/${PORT}/g" /tmp/smtp-serviceentry.yaml
+    kubectl apply -f /tmp/smtp-serviceentry.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: smtp-serviceentry
+data:
+  smtp-serviceentry.yaml: |
+    {{ (tpl (.Files.Get "files/resources/istio/smtp-serviceentry.yaml") .)| b64enc  | indent 4 }}
+{{- end -}}

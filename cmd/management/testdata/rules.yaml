@@ -1,0 +1,504 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+namespace: alerting-monitor
+groups:
+  # Host Maintenance
+  - name: fcddd571-6028-48fd-88c5-c0e598b4cbe2
+    interval: 15s
+    rules:
+      - alert: "HostMaintenance"
+        expr: 'edge_host_schedule{} == [[ .Threshold ]]'
+        labels:
+          threshold: "1"
+          duration: "0s"
+          alert_category: maintenance
+          alert_context: host
+          host_uuid: "{{`{{$labels.deviceGuid}}`}}"
+
+        annotations:
+          summary: "Maintenance set on host {{`{{$labels.deviceGuid}}`}}."
+          description: "Maintenance alert is used to inhibit other alerts for host {{`{{$labels.deviceGuid}}`}}."
+
+          am_uuid: fcddd571-6028-48fd-88c5-c0e598b4cbe2
+          am_duration: 0s
+          am_duration_min: 0s
+          am_duration_max: 0s
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  # Host Status
+  - name: 2102456a-8cf3-40a1-b9e0-5f8c9f970fe4
+    interval: 15s
+    rules:
+      - alert: "HostStatusError"
+        expr: 'edge_host_status{status="HOST_STATUS_ERROR"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: host
+          host_uuid: "{{`{{$labels.deviceGuid}}`}}"
+
+        annotations:
+          summary: "Detected error on host {{`{{$labels.deviceGuid}}`}}."
+          description: "Error on host {{`{{$labels.deviceGuid}}`}} detected."
+
+          am_uuid: 2102456a-8cf3-40a1-b9e0-5f8c9f970fe4
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+  - name: 4c57b59e-8243-445d-beb1-9aef315c5100
+    interval: 15s
+    rules:
+      - alert: "HostStatusConnectionLost"
+        expr: 'edge_host_status{status="HOST_STATUS_CONNECTION_LOST"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: host
+          host_uuid: "{{`{{$labels.deviceGuid}}`}}"
+
+        annotations:
+          summary: "Lost connection to host {{`{{$labels.deviceGuid}}`}}."
+          description: "No connection to host {{`{{$labels.deviceGuid}}`}}."
+
+          am_uuid: 4c57b59e-8243-445d-beb1-9aef315c5100
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+  - name: 0f9cbb4f-0ca1-4d9d-9f62-884f850e1754
+    interval: 15s
+    rules:
+      - alert: "HostStatusBootFailed"
+        expr: 'edge_host_status{status="HOST_STATUS_BOOT_FAILED"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: host
+          host_uuid: "{{`{{$labels.deviceGuid}}`}}"
+
+        annotations:
+          summary: "Host {{`{{$labels.deviceGuid}}`}} failed to boot."
+          description: "Host {{`{{$labels.deviceGuid}}`}} failing to boot."
+
+          am_uuid: 0f9cbb4f-0ca1-4d9d-9f62-884f850e1754
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+  - name: de7127b8-e81d-4b3c-962c-17ef73fdcde6
+    interval: 15s
+    rules:
+      - alert: "HostStatusProvisionFailed"
+        expr: 'edge_host_status{status="HOST_STATUS_PROVISION_FAILED"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: host
+          host_uuid: "{{`{{$labels.deviceGuid}}`}}"
+
+        annotations:
+          summary: "Provisioning failed on host {{`{{$labels.deviceGuid}}`}}."
+          description: "Provisioning on host {{`{{$labels.deviceGuid}}`}} failing."
+
+          am_uuid: de7127b8-e81d-4b3c-962c-17ef73fdcde6
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+  - name: c088c9dd-592c-4cfb-96e2-7c796c691130
+    interval: 15s
+    rules:
+      - alert: "HostStatusUpdateFailed"
+        expr: 'edge_host_status{status="HOST_STATUS_UPDATE_FAILED"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: host
+          host_uuid: "{{`{{$labels.deviceGuid}}`}}"
+
+        annotations:
+          summary: "Update failed on host {{`{{$labels.deviceGuid}}`}}."
+          description: "Host {{`{{$labels.deviceGuid}}`}} failing to update."
+
+          am_uuid: c088c9dd-592c-4cfb-96e2-7c796c691130
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  # Host Performance
+  - name: 20295141-764f-4035-a8fb-db485eb4c3fb
+    interval: 15s
+    rules:
+      - alert: "CPUUsageExceedsThreshold"
+        expr: 'avg_over_time(cpu_usage_system{ cpu="cpu-total"}[30s]) + avg_over_time(cpu_usage_user{ cpu="cpu-total"}[30s]) >= [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "80"
+          duration: "30s"
+          alert_category: performance
+          alert_context: host
+          host_uuid: "{{`{{$labels.hostGuid}}`}}"
+
+        annotations:
+          summary: "High CPU usage on host {{`{{$labels.hostGuid}}`}}."
+          description: "Host {{`{{$labels.hostGuid}}`}} CPU usage is over the threshold."
+
+          am_uuid: 20295141-764f-4035-a8fb-db485eb4c3fb
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 80
+          am_threshold_min: 1
+          am_threshold_max: 100
+          am_definition_type: integer
+          am_enabled: true
+  - name: 6db9aa84-3d4e-43eb-9ab5-80893fb17d8f
+    interval: 15s
+    rules:
+      - alert: "RAMUsageExceedsThreshold"
+        expr: "avg_over_time(mem_used_percent{}[30s]) >= [[ .Threshold ]]"
+        for: "30s"
+        labels:
+          threshold: "80"
+          duration: "30s"
+          alert_category: performance
+          alert_context: host
+          host_uuid: "{{`{{$labels.hostGuid}}`}}"
+
+        annotations:
+          summary: "High RAM usage on host {{`{{$labels.hostGuid}}`}}."
+          description: "Host {{`{{$labels.hostGuid}}`}} RAM usage is over the threshold."
+
+          am_uuid: 6db9aa84-3d4e-43eb-9ab5-80893fb17d8f
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 80
+          am_threshold_min: 1
+          am_threshold_max: 100
+          am_definition_type: integer
+          am_enabled: true
+  - name: 0f956dac-7476-4c13-8d65-b09e4e32f8de
+    interval: 15s
+    rules:
+      - alert: "DiskUsageExceedsThreshold"
+        expr: "count by (__tenant_id__, hostGuid, host) (avg_over_time(disk_used_percent{}[30s]) >= [[ .Threshold ]])"
+        for: "30s"
+        labels:
+          threshold: "85"
+          duration: "30s"
+          alert_category: performance
+          alert_context: host
+          host_uuid: "{{`{{$labels.hostGuid}}`}}"
+
+        annotations:
+          summary: "{{`{{$value}}`}} disks have usage over the threshold on host {{`{{$labels.hostGuid}}`}}."
+          description: "{{`{{$value}}`}} disks have usage over the threshold on host {{`{{$labels.hostGuid}}`}}."
+
+          am_uuid: 0f956dac-7476-4c13-8d65-b09e4e32f8de
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 85
+          am_threshold_min: 1
+          am_threshold_max: 100
+          am_definition_type: integer
+          am_enabled: true
+  - name: 53c1ba6b-66e4-4c80-9006-92fa4f20f5e1
+    interval: 15s
+    rules:
+      - alert: "HostCPUTemperatureExceedsThreshold"
+        expr: 'count by (__tenant_id__, hostGuid, host) (avg_over_time(temp_temp{sensor=~"coretemp_core_.+"}[30s]) >= [[ .Threshold ]])'
+        for: "30s"
+        labels:
+          threshold: "75"
+          duration: "30s"
+          alert_category: performance
+          alert_context: host
+          host_uuid: "{{`{{$labels.hostGuid}}`}}"
+
+        annotations:
+          summary: "Temperature of {{`{{$value}}`}} CPUs is over the threshold on host {{`{{$labels.hostGuid}}`}}."
+          description: "Temperature of {{`{{$value}}`}} CPUs is over the threshold on host {{`{{$labels.hostGuid}}`}}."
+
+          am_uuid: 53c1ba6b-66e4-4c80-9006-92fa4f20f5e1
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 75
+          am_threshold_min: 0
+          am_threshold_max: 110
+          am_definition_type: integer
+          am_enabled: true
+  - name: f44d04eb-8213-4002-b1bc-c0d5c8fa56c6
+    interval: 15s
+    rules:
+      - alert: "HighNetworkUsage"
+        expr: "(rate(net_bytes_sent{}[30s]) + rate(net_bytes_recv{}[30s])) / 1000000 >= [[ .Threshold ]]"
+        for: "30s"
+        labels:
+          threshold: "100"
+          duration: "30s"
+          alert_category: performance
+          alert_context: host
+          host_uuid: "{{`{{$labels.hostGuid}}`}}"
+
+        annotations:
+          summary: "High network usage on host {{`{{$labels.hostGuid}}`}}."
+          description: "Host {{`{{$labels.hostGuid}}`}} network usage is over the threshold on interface {{`{{$labels.interface}}`}}."
+
+          am_uuid: f44d04eb-8213-4002-b1bc-c0d5c8fa56c6
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 100
+          am_threshold_min: 1
+          am_threshold_max: 10000
+          am_threshold_unit: Mb/s
+          am_definition_type: integer
+          am_enabled: true
+
+  # Deployment Status
+  - name: 139399f1-36ab-4292-90a4-75346173eb8d
+    interval: 15s
+    rules:
+      - alert: "DeploymentStatusDown"
+        expr: 'adm_deployment_status{status="Down"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: deployment
+          deployment_id: "{{`{{$labels.deployment_id}}`}}"
+
+        annotations:
+          summary: "Deployment {{`{{$labels.deployment_id}}`}} is down."
+          description: >
+            At least one of the applications belonging to the deployment is in Down state.
+            See App Deployment Manager logs for details.
+            Deployment id: {{`{{$labels.deployment_id}}`}}.
+
+          am_uuid: 139399f1-36ab-4292-90a4-75346173eb8d
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  - name: 195fad48-fbca-499a-822f-5e5e49b2a398
+    interval: 15s
+    rules:
+      - alert: "DeploymentStatusError"
+        expr: 'adm_deployment_status{status="Error"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: deployment
+          deployment_id: "{{`{{$labels.deployment_id}}`}}"
+
+        annotations:
+          summary: "Detected an error in the deployment {{`{{$labels.deployment_id}}`}}."
+          description: >
+            There is an error with at least one of the applications during deployment.
+            Deployment id: {{`{{$labels.deployment_id}}`}}.
+
+          am_uuid: 195fad48-fbca-499a-822f-5e5e49b2a398
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  - name: a5ce5863-754c-464a-bde7-8f5c889bc057
+    interval: 15s
+    rules:
+      - alert: "DeploymentStatusInternalError"
+        expr: 'adm_deployment_status{status="InternalError"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: deployment
+          deployment_id: "{{`{{$labels.deployment_id}}`}}"
+
+        annotations:
+          summary: "Detected an internal error in the deployment {{`{{$labels.deployment_id}}`}}."
+          description: >
+            There is an internal error during an initial deployment or an update of an existing deployment.
+            The nature of the error is described in App Deployment Manager logs.
+            Deployment id: {{`{{$labels.deployment_id}}`}}.
+
+          am_uuid: a5ce5863-754c-464a-bde7-8f5c889bc057
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  - name: 9f2dc4cf-4e7a-4d86-bf46-2db8b5017025
+    interval: 15s
+    rules:
+      - alert: "DeploymentStatusNoTargetClusters"
+        expr: 'adm_deployment_status{status="NoTargetClusters"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: deployment
+          deployment_id: "{{`{{$labels.deployment_id}}`}}"
+
+        annotations:
+          summary: "Detected a no target cluster error in the deployment {{`{{$labels.deployment_id}}`}}."
+          description: >
+            At least one application cannot be deployed because its label does not match a cluster label.
+            App Deployment Manager assumes that all applications will be deployed to at least one cluster.
+            This state is also triggered if the Deployment Package contains no applications.
+            Deployment id: {{`{{$labels.deployment_id}}`}}.
+
+          am_uuid: 9f2dc4cf-4e7a-4d86-bf46-2db8b5017025
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  # Deployment Instance Status
+  - name: c52f608b-cd84-4598-8767-af9a8e6c246d
+    interval: 15s
+    rules:
+      - alert: "DeploymentInstanceStatusDown"
+        expr: 'adm_deployment_cluster_status{status="Down"} == [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "1"
+          duration: "30s"
+          alert_category: health
+          alert_context: deployment
+          deployment_id: "{{`{{$labels.deployment_id}}`}}"
+          cluster_name: "{{`{{$labels.cluster_name}}`}}"
+
+        annotations:
+          summary: "Deployment {{`{{$labels.deployment_id}}`}} on the cluster {{`{{$labels.cluster_name}}`}} is down."
+          description: "Deployment {{`{{$labels.deployment_id}}`}} on the cluster {{`{{$labels.cluster_name}}`}} is down."
+
+          am_uuid: c52f608b-cd84-4598-8767-af9a8e6c246d
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 1
+          am_threshold_min: 1
+          am_threshold_max: 1
+          am_definition_type: boolean
+          am_enabled: true
+
+  # Cluster Performance
+  - name: c9769cd4-a7b3-48cf-9fdd-733534749732
+    interval: 15s
+    rules:
+      - alert: "ClusterCPUUsageExceedsThreshold"
+        expr: '100 * avg by (clusterName) (1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) >= [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "80"
+          duration: "30s"
+          alert_category: performance
+          alert_context: cluster
+          cluster_name: "{{`{{$labels.clusterName}}`}}"
+
+        annotations:
+          summary: "High CPU usage on cluster {{`{{$labels.clusterName}}`}}."
+          description: "Cluster {{`{{$labels.clusterName}}`}} CPU usage is above threshold."
+
+          am_uuid: c9769cd4-a7b3-48cf-9fdd-733534749732
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 80
+          am_threshold_min: 1
+          am_threshold_max: 100
+          am_definition_type: integer
+          am_enabled: true
+
+  - name: 01e74407-0327-4e36-93cb-85801c098ba5
+    interval: 15s
+    rules:
+      - alert: "ClusterRAMUsageExceedsThreshold"
+        expr: >-
+          '100 * (sum by (clusterName) (avg_over_time(node_memory_MemTotal_bytes[5m])) -
+          sum by (clusterName) (avg_over_time(node_memory_MemAvailable_bytes[5m]))) /
+          sum by (clusterName) (avg_over_time(node_memory_MemTotal_bytes[5m])) >= [[ .Threshold ]]'
+        for: "30s"
+        labels:
+          threshold: "80"
+          duration: "30s"
+          alert_category: performance
+          alert_context: cluster
+          cluster_name: "{{`{{$labels.clusterName}}`}}"
+
+        annotations:
+          summary: "High RAM usage on cluster {{`{{$labels.clusterName}}`}}."
+          description: "Cluster {{`{{$labels.clusterName}}`}} RAM usage is above threshold."
+
+          am_uuid: 01e74407-0327-4e36-93cb-85801c098ba5
+          am_duration: 30s
+          am_duration_min: 15s
+          am_duration_max: 10m
+          am_threshold: 80
+          am_threshold_min: 1
+          am_threshold_max: 100
+          am_definition_type: integer
+          am_enabled: true

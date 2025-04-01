@@ -1,0 +1,19 @@
+// SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+// SPDX-License-Identifier: Apache-2.0
+
+syntax = "proto3";
+
+package proto;
+
+import "google/protobuf/empty.proto";
+option go_package = "proto/";
+
+service Management {
+  rpc InitializeTenant (TenantRequest) returns (google.protobuf.Empty);
+  rpc CleanupTenant (TenantRequest) returns (google.protobuf.Empty);
+}
+
+// TenantRequest is the message containing tenant name as a string.
+message TenantRequest {
+  string tenant = 1;
+}

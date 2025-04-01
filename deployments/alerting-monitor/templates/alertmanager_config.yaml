@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: alert-monitor-config
+stringData:
+  custom.yaml: |
+    route:
+      group_by:
+        - "host_uuid"
+        - "deployment_id"
+        - "cluster_name"
+      receiver: 'null'
+      group_wait: {{ .Values.alertManagerConfig.groupWait }}
+      group_interval: {{ .Values.alertManagerConfig.groupInterval }}
+      repeat_interval: {{ .Values.alertManagerConfig.repeatInterval }}
+      routes:
+      - matchers:
+        - alert_category=~"health|performance"
+        - projectId=~""
+        receiver: edgenode-alert-monitor-config-1
+    receivers:
+      - name: 'edgenode-alert-monitor-config-1'
+        email_configs: []
+      - name: 'null'
+    inhibit_rules:
+      - source_matchers:
+        - alertname="HostMaintenance"
+        target_matchers:
+        - alert_context="host"
+        equal:
+          - host_uuid
+    templates:
+      - '/etc/alertmanager/templates/*.tmpl'

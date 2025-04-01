@@ -1,0 +1,23 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files:
+  .tool-versions
+  VERSION
+  api/v1/server.go
+  api/v1/types.go
+  deployments/alerting-monitor/files/atlas/migrations/atlas.sum
+  deployments/alerting-monitor/files/emails/define
+  deployments/alerting-monitor/files/emails/define_mail
+  deployments/alerting-monitor/files/emails/define_o11y
+  deployments/alerting-monitor/files/emails/end
+  deployments/alerting-monitor/files/emails/import_email_template
+  deployments/alerting-monitor/files/policies/*.rego
+  deployments/alerting-monitor/templates/_helpers.tpl
+  go.mod
+  go.sum
+  .cache/*
+  trivy*
+  ci/*
+  clamav*
+Copyright: 2025 Intel Corporation
+License: Apache-2.0

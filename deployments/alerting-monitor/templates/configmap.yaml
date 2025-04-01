@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+  # SPDX-License-Identifier: Apache-2.0
+
+{{- $profileList := list "multitenant" "legacy" "compressed" }}
+{{- if mustHas .Values.openPolicyAgent.config.profile $profileList }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-opa-cm
+  namespace: {{ .Release.Namespace }}
+data:
+  policy.rego: |
+  {{- if eq .Values.openPolicyAgent.config.profile "multitenant" }}
+    {{- (.Files.Get "files/policies/policy_multitenant.rego") | nindent 4 }}
+  {{- else if eq .Values.openPolicyAgent.config.profile "legacy" }}
+    {{- (.Files.Get "files/policies/policy_legacy.rego") | nindent 4 }}
+  {{- else if eq .Values.openPolicyAgent.config.profile "compressed" }}
+    {{- (.Files.Get "files/policies/policy_compressed.rego") | nindent 4 }}
+  {{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "alert-monitor-config"
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |
+    {{- tpl (.Files.Get "files/config.yaml") . | nindent 4 }}

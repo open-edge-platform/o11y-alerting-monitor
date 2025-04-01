@@ -1,0 +1,596 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+openapi: "3.1.0"
+
+info:
+  version: "1.3.0"
+  title: "Alerting Monitor"
+  summary: "Observability Management Service for Alerts"
+  description: "Alerting Monitor is an Observability Management Service that exposes API for configuring alerts"
+  contact:
+    email: przemyslaw.perycz@intel.com
+  license:
+    name: "(C) 2025 Intel Corporation"
+    identifier: Apache-2.0
+
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: "alerting-monitor.orch-infra.svc"
+      port:
+        default: "8080"
+
+paths:
+  # Global Service API endpoint
+  /api/v1/status:
+    get:
+      description: "Gets runtime status of the service"
+      operationId: "getServiceStatus"
+      tags:
+        - service
+      responses:
+        '200':
+          description: "The runtime status of the service is retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceStatus"
+
+  # Multi-tenant API endpoint
+  /api/v1/alerts:
+    get:
+      description: "Gets a list of alert instances"
+      operationId: "getProjectAlerts"
+      tags:
+        - alert
+      parameters:
+        - $ref: "#/components/parameters/alertsQueryFilter"
+        - $ref: "#/components/parameters/hostQueryFilter"
+        - $ref: "#/components/parameters/clusterQueryFilter"
+        - $ref: "#/components/parameters/appQueryFilter"
+        - $ref: "#/components/parameters/activeAlertsQueryFilter"
+        - $ref: "#/components/parameters/suppressedAlertsQueryFilter"
+      responses:
+        '200':
+          description: "The list of alert instances is retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertList"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+  # Multi-tenant API endpoint
+  /api/v1/alerts/definitions:
+    get:
+      description: "Gets a list of alert definitions"
+      operationId: "getProjectAlertDefinitions"
+      tags:
+        - alert-definition
+      responses:
+        '200':
+          description: "The list of alert definitions is retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertDefinitionList"
+              example:
+                alerts:
+                  - id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    name: "Alerts/Host/CPU/Utilization/Warning"
+                    version: 1
+                    state: "applied"
+                    values:
+                      threshold: 80
+                      duration: "5m"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+  # Multi-tenant API endpoint
+  /api/v1/alerts/definitions/{alertDefinitionID}:
+    get:
+      description: "Gets details of a single alert definition by its ID value"
+      operationId: "getProjectAlertDefinition"
+      tags:
+        - alert-definition
+      parameters:
+        - $ref: "#/components/parameters/alertDefinitionId"
+      responses:
+        '200':
+          description: "The alert is found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertDefinition"
+              example:
+                id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                name: "Alerts/Host/CPU/Utilization/Warning"
+                version: 1
+                state: "applied"
+                values:
+                  threshold: "80"
+                  duration: "5m"
+        '404':
+          $ref: "#/components/responses/404"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+    patch:
+      description: "Updates (patch) details of a single alert definition"
+      operationId: "patchProjectAlertDefinition"
+      tags:
+        - alert-definition
+      parameters:
+        - $ref: "#/components/parameters/alertDefinitionId"
+      requestBody:
+        required: true
+        description: "Payload that defines the properties to be updated"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                values:
+                  type: "object"
+                  properties:
+                    threshold:
+                      type: "string"
+                    duration:
+                      type: "string"
+                    enabled:
+                      type: "string"
+            example:
+              values:
+                threshold: "67"
+                duration: "10m"
+                enabled: "true"
+      responses:
+        '204':
+          description: "The alert definition is updated successfully"
+        '400':
+          $ref: "#/components/responses/400"
+        '404':
+          $ref: "#/components/responses/404"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+  # Multi-tenant API endpoint
+  /api/v1/alerts/definitions/{alertDefinitionID}/template:
+    get:
+      description: "Gets details of a rendered alerting rule based on alert template and values"
+      operationId: getProjectAlertDefinitionRule
+      tags:
+        - alert-definition
+      parameters:
+        - $ref: "#/components/parameters/alertDefinitionId"
+        - $ref: "#/components/parameters/renderedTemplateQueryParam"
+      responses:
+        '200':
+          description: "The rendered alerting rule based on alert template, is found"
+          content:
+            application/yaml:
+              schema:
+                $ref: "#/components/schemas/AlertDefinitionTemplate"
+        '404':
+          $ref: "#/components/responses/404"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+  # Multi-tenant API endpoint
+  /api/v1/alerts/receivers:
+    get:
+      description: "Gets a list of alert receivers"
+      operationId: "getProjectAlertReceivers"
+      tags:
+        - alert-receiver
+      responses:
+        '200':
+          description: "The list of alert receivers is retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiverList"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+  # Multi-tenant API endpoint
+  /api/v1/alerts/receivers/{receiverID}:
+    get:
+      description: "Gets details of a single alert receiver by its ID value"
+      operationId: "getProjectAlertReceiver"
+      tags:
+        - alert-receiver
+      parameters:
+        - $ref: "#/components/parameters/receiverId"
+      responses:
+        '200':
+          description: "The alert receiver is found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receiver"
+        '404':
+          $ref: "#/components/responses/404"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+    patch:
+      description: "Updates (patch) details of a single alert receiver"
+      operationId: "patchProjectAlertReceiver"
+      tags:
+        - alert-receiver
+      parameters:
+        - $ref: "#/components/parameters/receiverId"
+      requestBody:
+        required: true
+        description: "Payload that defines the properties to be updated"
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - emailConfig
+              properties:
+                emailConfig:
+                  $ref: "#/components/schemas/EmailConfigTo"
+      responses:
+        '204':
+          description: "The alert receiver is updated successfully"
+        '400':
+          $ref: "#/components/responses/400"
+        '404':
+          $ref: "#/components/responses/404"
+        '500':
+          $ref: "#/components/responses/500"
+        '503':
+          $ref: "#/components/responses/503"
+
+components:
+  parameters:
+    # Path identifiers start
+    alertDefinitionId:
+      name: "alertDefinitionID"
+      in: path
+      description: ID of an alert definition (UUID format)
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    receiverId:
+      name: "receiverID"
+      in: path
+      description: ID of a receiver (UUID format)
+      required: true
+      schema:
+        type: string
+        format: uuid
+    # Path identifiers end
+
+    # Filter query parameters start
+    alertsQueryFilter:
+      name: "alert"
+      in: query
+      description: "Filters the alert definitions by name"
+      schema:
+        type: "string"
+
+    hostQueryFilter:
+      name: "host"
+      in: query
+      description: "Filters the alerts by Host ID"
+      schema:
+        type: "string"
+
+    clusterQueryFilter:
+      name: "cluster"
+      in: query
+      description: "Filters the alerts by cluster ID"
+      schema:
+        type: "string"
+
+    appQueryFilter:
+      name: "app"
+      in: query
+      description: "Filters the alerts by application or deployment ID"
+      schema:
+        type: "string"
+
+    activeAlertsQueryFilter:
+      name: "active"
+      in: query
+      description: "Shows active alerts"
+      schema:
+        type: "boolean"
+        default: true
+
+    suppressedAlertsQueryFilter:
+      name: "suppressed"
+      in: query
+      description: "Shows suppressed alerts"
+      schema:
+        type: boolean
+        default: true
+    # Filter query parameters end
+
+    # Modifier query parameters
+    renderedTemplateQueryParam:
+      name: rendered
+      in: query
+      description: Specifies if template values will be rendered
+      required: false
+      schema:
+        type: boolean
+        default: false
+
+  schemas:
+    HttpError:
+      type: "object"
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: "string"
+        code:
+          type: "integer"
+          minimum: 400
+          maximum: 600
+
+    ServiceStatus:
+      type: "object"
+      properties:
+        state:
+          type: "string"
+          enum:
+            - ready
+            - failed
+      required:
+        - state
+
+    AlertList:
+      type: "object"
+      properties:
+        alerts:
+          type: "array"
+          items:
+            $ref: '#/components/schemas/Alert'
+
+    Alert:
+      type: "object"
+      properties:
+        # Cross-reference to the alert definition that generated this alert, determined through labels
+        alertDefinitionId:
+          type: "string"
+          format: "uuid"
+
+        startsAt:
+          type: "string"
+          format: "date-time"
+        updatedAt:
+          type: "string"
+          format: "date-time"
+        endsAt:
+          type: "string"
+          format: "date-time"
+
+        status:
+          type: "object"
+          properties:
+            state:
+              type: "string"
+              # Ref: https://github.com/prometheus/alertmanager/blob/main/types/types.go AlertState
+              enum:
+                - suppressed
+                - active
+                - resolved
+
+        fingerprint:
+          type: "string"
+        labels:
+          type: "object"
+          additionalProperties:
+            type: "string"
+        annotations:
+          type: "object"
+          additionalProperties:
+            type: "string"
+
+    AlertDefinitionList:
+      type: "object"
+      properties:
+        alertDefinitions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AlertDefinition"
+
+    AlertDefinition:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+
+        # Human-readable, unique alert definition name
+        name:
+          type: "string"
+
+        version:
+          type: "integer"
+
+        state:
+          $ref: "#/components/schemas/StateDefinition"
+
+        values:
+          type: "object"
+          additionalProperties:
+            type: "string"
+
+    AlertDefinitionTemplate:
+      type: "object"
+      properties:
+        alert:
+          type: "string"
+        expr:
+          type: "string"
+        for:
+          type: "string"
+        labels:
+          type: "object"
+          additionalProperties:
+            type: "string"
+        annotations:
+          type: "object"
+          additionalProperties:
+            type: "string"
+
+    ReceiverList:
+      type: "object"
+      properties:
+        receivers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Receiver"
+
+    Receiver:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+
+        version:
+          type: "integer"
+
+        state:
+          $ref: "#/components/schemas/StateDefinition"
+
+        emailConfig:
+          $ref: "#/components/schemas/EmailConfig"
+
+    Email:
+      type: "string"
+      # pattern: ''
+
+    EmailRecipientList:
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Email"
+
+    EmailConfigTo:
+      type: "object"
+      required:
+        - to
+      properties:
+        to:
+          type: "object"
+          required:
+            - enabled
+          properties:
+            enabled:
+              $ref: "#/components/schemas/EmailRecipientList"
+
+    EmailConfig:
+      type: "object"
+      properties:
+        mailServer:
+          type: "string"
+        from:
+          $ref: "#/components/schemas/Email"
+        to:
+          type: "object"
+          properties:
+            enabled:
+              $ref: "#/components/schemas/EmailRecipientList"
+            allowed:
+              $ref: "#/components/schemas/EmailRecipientList"
+
+    StateDefinition:
+      type: "string"
+      enum:
+        - new
+        - modified
+        - pending
+        - error
+        - applied
+
+  responses:
+    '400':
+      description: "Bad Request"
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/HttpError"
+          example:
+            code: 400
+            message: "Bad Request"
+    '404':
+      description: "Not Found"
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/HttpError"
+          example:
+            code: 404
+            message: "Not Found"
+    '409':
+      description: "Conflict"
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/HttpError"
+          example:
+            code: 409
+            message: "Conflict"
+    '415':
+      description: "Unsupported Media Type"
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/HttpError"
+          example:
+            code: 415
+            message: "Unsupported Media Type"
+    '500':
+      description: "Internal Server Error"
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/HttpError"
+          example:
+            code: 500
+            message: "Internal Server Error"
+    '503':
+      description: "Service Unavailable"
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/HttpError"
+          example:
+            code: 503
+            message: "Server Unavailable"
+
+tags:
+  - name: service
+    description: Operations related to the service itself
+  - name: alert-definition
+    description: Operations related to alert definitions
+  - name: alert-receiver
+    description: Operations related to alert receivers
+  - name: alert
+    description: Operations related to alerts (Alertmanager proxy)

@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+alertmanager:
+  url: http://alerting-monitor-alertmanager.{{ .Values.alertmanagerNamespace }}.svc.cluster.local:9093
+  requireTLS: {{ .Values.smtp.requireTls }}
+  insecureSkipVerify: {{ .Values.smtp.insecureSkipVerify }}
+  namespace: {{ .Values.alertmanagerNamespace }}
+mimir:
+  rulerURL: {{ .Values.mimir.rulerEndpoint }}
+  namespace: {{ .Values.mimir.namespace }}
+  tenant: {{ .Values.mimir.tenant }}
+keycloak:
+  m2mClient: {{ .Values.keycloakM2MClient }}
+authentication:
+  oidcServer: {{ .Values.authentication.oidcServer }}
+  oidcServerRealm: {{ .Values.authentication.oidcServerRealm }}
+vault:
+  host: {{ .Values.vault.host }}
+  expirationPeriod: {{ .Values.vault.expirationPeriod }}
+  kubernetesRole: {{ .Values.vault.kubernetesRole }}
+taskExecutor:
+  uuidLimit: {{ .Values.taskExecutor.uuidLimit }}
+  retryLimit: {{ .Values.taskExecutor.retryLimit }}
+  taskTimeout: {{ .Values.taskExecutor.taskTimeout }}
+  retentionTime: {{ .Values.taskExecutor.retentionTime }}
+  dbPoolingRate: {{ .Values.taskExecutor.dbPoolingRate }}

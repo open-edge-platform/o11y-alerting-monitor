@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+alertmanager:
+  url: http://localhost:9093
+  namespace: "test-namespace"
+mimir:
+  rulerURL: http://localhost:8081
+  namespace: "test-namespace"
+  tenant: "test-org"
+keycloak:
+  m2mClient: host-manager-m2m-client
+authentication:
+  oidcServer: "https://keycloak.kind.internal"
+  oidcServerRealm: master
+taskExecutor:
+  uuidLimit: 3
+  retryLimit: 10
+  taskTimeout: 10m
+  retentionTime: 240h
+  dbPoolingRate: 10s

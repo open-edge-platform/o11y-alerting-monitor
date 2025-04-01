@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: smtp-service
+spec:
+  hosts:
+    - <host>
+  location: MESH_EXTERNAL
+  ports:
+    - name: smtp
+      number: <port>
+      protocol: TCP
+  resolution: DNS

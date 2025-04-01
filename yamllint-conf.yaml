@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# yamllint config
+
+extends: default
+
+rules:
+  empty-lines:
+    max-end: 1
+  line-length:
+    max: 160
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+  document-start: disable
+
+ignore:
+  - ci/
+  - trivy/
+  - .github/
+  - .git/
+  - .golangci.yml
+  # ignore files with Helm template syntax (yamllint can't parse them) and deliberately malformed
+  - deployments/alerting-monitor/files/rules/rules.yaml
+  - deployments/alerting-monitor/templates/configmap.yaml
+  - deployments/alerting-monitor/templates/deployment.yaml
+  - deployments/alerting-monitor/templates/mail_catcher.yaml
+  - deployments/alerting-monitor/templates/management_deployment.yaml
+  - deployments/alerting-monitor/templates/migration_files.yaml
+  - deployments/alerting-monitor/templates/migration_up_job.yaml
+  - deployments/alerting-monitor/templates/network_policy.yaml
+  - deployments/alerting-monitor/templates/rules_configmap.yaml
+  - deployments/alerting-monitor/templates/service.yaml
+  - deployments/alerting-monitor/templates/smtp_config_job.yaml
+  - internal/config/_testdata/test_config_malformed.yaml

@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+  # SPDX-License-Identifier: Apache-2.0
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: alerting-monitor-migrations-job
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: migrate/migrate
+          volumeMounts:
+            - name: migration-volume
+              mountPath: /migrations
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            allowPrivilegeEscalation: false
+          env:
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGPASSWORD
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGHOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGPORT
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGDATABASE
+        {{- if eq .Values.database.ssl true }}
+          command: [ "migrate", "-path", "/migrations", "-database", "postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)?sslmode=require", "up" ]
+        {{ else }}
+          command: [ "migrate", "-path", "/migrations", "-database", "postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/$(PGDATABASE)?sslmode=disable", "up" ]
+        {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: migration-volume
+          configMap:
+            name: alerting-monitor-migrations

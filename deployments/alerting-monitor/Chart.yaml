@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v2
+name: alerting-monitor
+description: A Helm chart for Alerting Monitor
+type: application
+version: 1.6.31
+appVersion: 1.6.31
+annotations:
+  revision: "c77d01a01ebd06407a17b2a55d127407cb9fabe6"
+  created: "2025-04-01T05:43:23Z"
+dependencies:
+  - name: alertmanager
+    condition: import.alertmanager.enabled
+    version: "~1.14.0"
+    repository: "https://prometheus-community.github.io/helm-charts"

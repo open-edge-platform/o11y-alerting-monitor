@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerting-monitor-management
+  labels:
+    {{- include "alerting-monitor-management.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "alerting-monitor-management.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "alerting-monitor-management.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: management
+          image: "{{ .Values.management.registry }}/{{ .Values.management.repository }}:{{ .Values.management.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.management.pullPolicy }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          readinessProbe:
+            grpc:
+              port: {{ include "alerting-monitor-management.ports.grpc" . }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            grpc:
+              port: {{ include "alerting-monitor-management.ports.grpc" . }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: rules-volume
+              mountPath: /config/rules.yaml
+              subPath: rules.yaml
+          env:
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGDATABASE
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGHOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGPORT
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGPASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.databaseSecret }}
+                  key: PGUSER
+            {{- if .Values.smtp.initialize }}
+            - name: FROM_MAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'from'
+            - name: SMART_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'smartHost'
+            - name: SMART_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.configSecret }}
+                  key: 'smartPort'
+            {{- end }}
+          ports:
+            - containerPort: {{ include "alerting-monitor-management.ports.grpc" . }}
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: rules-volume
+          configMap:
+            name: default-rules
