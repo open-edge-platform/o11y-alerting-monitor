@@ -5,11 +5,11 @@ apiVersion: v2
 name: alerting-monitor
 description: A Helm chart for Alerting Monitor
 type: application
-version: 1.7.0
-appVersion: 1.7.0
+version: 1.7.1-dev
+appVersion: 1.7.1-dev
 annotations:
-  revision: "19f9860eea02437faa08385f58a4e9d36edcba32"
-  created: "2025-04-02T05:43:55Z"
+  revision: "3f51c0f1980025e6dd24e270f71ccd0af4591ec5"
+  created: "2025-04-02T08:58:52Z"
 dependencies:
   - name: alertmanager
     condition: import.alertmanager.enabled

@@ -1,7 +1,6 @@
 module github.com/open-edge-platform/o11y-alerting-monitor
 
 go 1.24.0
-
 require (
 	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/buger/jsonparser v1.1.1
@@ -19,7 +18,7 @@ require (
 	github.com/onsi/gomega v1.36.3
 	github.com/prometheus/prometheus v0.302.1
 	github.com/stretchr/testify v1.10.0
-	google.golang.org/grpc v1.71.0
+	google.golang.org/grpc v1.71.1
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
