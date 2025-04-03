@@ -16,12 +16,13 @@ jobs:
   post-merge:
     permissions:
       contents: write
-    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@0.1.0
+    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@better-permissions
     with:
       run_version_check: true
       run_security_scans: true
       run_dep_version_check: false
       cache_go: true
+      remove_cache_go: true
       run_build: true
       # run_lint and run_test - to have full, reusable cache for all PRs
       # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
