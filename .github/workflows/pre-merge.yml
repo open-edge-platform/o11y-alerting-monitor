@@ -34,3 +34,4 @@ jobs:
       run_artifact: false
       bootstrap_tools: "go,gotools,nodejs,python,golang-lint,helm,shellcheck,hadolint,yq,jq,protolint"
     secrets: inherit
+
