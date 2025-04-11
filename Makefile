@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+SHELL := bash -eu -o pipefail
+
 PROJECT_NAME                      := alerting-monitor
 
 ## Labels to add Docker/Helm/Service CI meta-data.
@@ -94,6 +96,19 @@ helm-push:
 	aws ecr create-repository --region us-west-2 --repository-name $(REGISTRY_NO_AUTH)/$(REPOSITORY)/charts/$(CHART_NAME) || true
 	helm push $(CHART_BUILD_DIR)$(CHART_NAME)*.tgz oci://$(REPOSITORY_NO_AUTH)/charts
 	@echo "---END MAKEFILE HELM-PUSH---"
+
+docker-list: docker-list-header docker-list-alerting-monitor docker-list-management  ## list all docker containers built by this repo
+
+docker-list-header:
+	@echo "images:"
+
+helm-list: ## List helm charts, tag format, and versions in YAML format
+	@echo "charts:" ;\
+  echo "  $(CHART_NAME):" ;\
+  echo -n "    "; grep "^version" "${CHART_PATH}/Chart.yaml"  ;\
+  echo "    gitTagPrefix: 'v'" ;\
+  echo "    outDir: '${CHART_BUILD_DIR}'" ;\
+
 ## CI Mandatory Targets end
 
 ## Helper Targets start
@@ -224,6 +239,20 @@ docker-push-management:
 	aws ecr create-repository --region us-west-2 --repository-name $(REGISTRY_NO_AUTH)/$(REPOSITORY)/$(DOCKER_MANAGEMENT_IMAGE_NAME) || true
 	docker push $(REPOSITORY_NO_AUTH)/$(DOCKER_MANAGEMENT_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
 	@echo "---END MAKEFILE DOCKER-PUSH-MANAGEMENT---"
+
+docker-list-alerting-monitor:
+	@echo "  $(DOCKER_IMAGE_NAME):"
+	@echo "    name: '$(REPOSITORY_NO_AUTH)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'"
+	@echo "    version: '$(DOCKER_IMAGE_TAG)'"
+	@echo "    gitTagPrefix: 'v'"
+	@echo "    buildTarget: 'docker-build-alerting-monitor'"
+
+docker-list-management:
+	@echo "  $(DOCKER_MANAGEMENT_IMAGE_NAME):"
+	@echo "    name: '$(REPOSITORY_NO_AUTH)/$(DOCKER_MANAGEMENT_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'"
+	@echo "    version: '$(DOCKER_IMAGE_TAG)'"
+	@echo "    gitTagPrefix: 'v'"
+	@echo "    buildTarget: 'docker-build-management'"
 
 kind-all: helm-clean docker-build kind-load helm-build
 	@# Help: Builds all images, loads them into the kind cluster and builds the helm chart
