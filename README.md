@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 [Contact us]: https://github.com/open-edge-platform
 
 [Apache 2.0 License]: LICENSES/Apache-2.0.txt
-[Contributor's Guide]: CONTRIBUTING.md
+[Contributor's Guide]: https://docs.openedgeplatform.intel.com/edge-manage-docs/main/developer_guide/contributor_guide/index.html
 
 [Email Notifications]: https://github.com/open-edge-platform/orch-docs/blob/main/docs/developer_guide/observability/tutorials/development/email-notifications.rst
 
@@ -38,6 +38,20 @@ Read more about Alerting Monitor in the [Documentation].
 To set up the development environment and work on this project, follow the steps below.
 All necessary tools will be installed using the `install-tools` target.
 Note that `docker` and `asdf` must be installed beforehand.
+
+## Develop
+
+The code of this project is maintained and released in CI using the `VERSION` file.
+In addition, the chart is versioned with the same tag as the `VERSION` file.
+
+This is mandatory to keep all chart versions and app versions coherent.
+
+To bump the version, increment the version in the `VERSION` file and run the following command
+(to set `version` and `appVersion` in the `Chart.yaml` automatically):
+
+```sh
+make helm-build
+```
 
 ### Install Tools
 
@@ -150,18 +164,6 @@ Details regarding email notifications via MailPit can be found here: [Email Noti
 ## Contribute
 
 To learn how to contribute to the project, see the [Contributor's Guide].
-
-The code of this project is maintained and released in CI using the `VERSION` file.
-In addition, the chart is versioned with the same tag as the `VERSION` file.
-
-This is mandatory to keep all chart versions and app versions coherent.
-
-To bump the version, increment the version in the `VERSION` file and run the following command
-(to set `version` and `appVersion` in the `Chart.yaml` automatically):
-
-```sh
-make helm-build
-```
 
 ## Community and Support
 
