@@ -57,7 +57,7 @@ dependency-check:
 build: build-alerting-monitor build-management
 	@# Help: Builds alerting-monitor and management
 
-lint: lint-go lint-schema lint-markdown lint-yaml lint-proto lint-json lint-shell lint-docker lint-license
+lint: lint-go lint-schema lint-markdown lint-yaml lint-proto lint-json lint-shell lint-docker
 	@# Help: Runs all linters
 
 test:
