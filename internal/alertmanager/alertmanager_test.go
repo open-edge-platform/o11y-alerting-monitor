@@ -25,7 +25,7 @@ func TestGetConfigManifest(t *testing.T) {
 	t.Run("Failed to get alertmanager config secret due to error", func(t *testing.T) {
 		fakeClient := testclient.NewSimpleClientset()
 
-		fakeClient.Fake.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
+		fakeClient.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
 		})
 
@@ -137,7 +137,7 @@ func TestSetConfigManifest(t *testing.T) {
 	t.Run("Failed to get alertmanager config secret", func(t *testing.T) {
 		fakeClient := testclient.NewSimpleClientset()
 
-		fakeClient.Fake.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
+		fakeClient.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
 		})
 
@@ -218,7 +218,7 @@ func TestSetConfigManifest(t *testing.T) {
 			},
 		})
 
-		fakeClient.Fake.PrependReactor("update", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
+		fakeClient.PrependReactor("update", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
 		})
 
@@ -265,7 +265,7 @@ func TestReceiverConfig_UpdateReceiverConfig(t *testing.T) {
 	t.Run("FailToGetManifest", func(t *testing.T) {
 		fakeClient := testclient.NewSimpleClientset()
 
-		fakeClient.Fake.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
+		fakeClient.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
 		})
 
@@ -343,7 +343,7 @@ route:
 		})
 
 		// mock setting the alertmanager config manifest.
-		fakeClient.Fake.PrependReactor("update", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
+		fakeClient.PrependReactor("update", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
 		})
 

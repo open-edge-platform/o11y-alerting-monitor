@@ -291,7 +291,7 @@ func assertResponse(t *testing.T, expected string, responseBody *bytes.Buffer) {
 
 	expectedAlerts := unmarshalledExpected.Alerts
 	responseAlerts := unmarshalledResponse.Alerts
-	require.Equal(t, len(*expectedAlerts), len(*responseAlerts), "Number of alerts in expected response and actual response does not match")
+	require.Len(t, *responseAlerts, len(*expectedAlerts), "Number of alerts in expected response and actual response does not match")
 
 	require.Equal(t, unmarshalledExpected, unmarshalledResponse, "Response body different than expected")
 }
