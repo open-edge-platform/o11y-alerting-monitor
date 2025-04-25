@@ -138,7 +138,7 @@ func UpdateTemplateWithValues(rule string, duration, threshold *int64) (string, 
 		tmpl.Labels["duration"] = time.Duration(*duration * int64(time.Second)).String()
 	}
 	if threshold != nil {
-		tmpl.Labels["threshold"] = strconv.Itoa(int(*threshold))
+		tmpl.Labels["threshold"] = strconv.FormatInt(*threshold, 10)
 	}
 
 	out, err := yaml.Marshal(tmpl)

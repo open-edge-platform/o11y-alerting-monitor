@@ -25,7 +25,7 @@ var r = regexp.MustCompile(`^Bearer (\S+)$`)
 func getB64JWT(authorizationHeader string) (string, error) {
 	match := r.FindStringSubmatch(authorizationHeader)
 	if len(match) != 2 {
-		return "", fmt.Errorf("unable to extract token from authorization header: %v", authorizationHeader)
+		return "", errors.New("unable to extract token from authorization header")
 	}
 	return match[1], nil
 }
