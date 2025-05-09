@@ -50,4 +50,3 @@ jobs:
       run_helm_push: true
       run_artifact: false
       run_version_dev: false
-    secrets: inherit
