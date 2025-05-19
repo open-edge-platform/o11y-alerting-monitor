@@ -23,7 +23,7 @@ func authorize(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		err := ensureAuthorized(c)
 		if err != nil {
-			logError(c, "Failed to authorize request", err)
+			logError(c, logger, "Failed to authorize request", err)
 			return echo.NewHTTPError(http.StatusUnauthorized, "Failed to authorize request")
 		}
 		return next(c)

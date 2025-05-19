@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -28,6 +29,7 @@ type ServerInterfaceHandler struct {
 	receivers   db.ReceiverHandlerManager
 	definitions db.AlertDefinitionHandlerManager
 	m2m         M2MConnection
+	logger        *slog.Logger
 
 	configuration config.Config
 }
@@ -48,7 +50,7 @@ const (
 	errHTTPFailedToExtractProjectID           = "failed to extract projectID"
 )
 
-func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m M2MConnection) *ServerInterfaceHandler {
+func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m M2MConnection, logger *slog.Logger) *ServerInterfaceHandler {
 	return &ServerInterfaceHandler{
 		configuration: configuration,
 		receivers: &db.DBService{
@@ -58,6 +60,7 @@ func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m
 			DB: dbConn,
 		},
 		m2m: m2m,
+		logger:        logger,
 	}
 }
 
@@ -80,7 +83,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	u, err := url.Parse(urlRaw)
 	if err != nil {
-		logError(ctx, "Error parsing alertmanager URL", err)
+		logError(ctx, w.logger,     "Error parsing alertmanager URL", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
