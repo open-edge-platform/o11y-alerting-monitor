@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -290,12 +291,26 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 	return res, nil
 }
 
+// func logError(ctx echo.Context, msg string, err error) {
+// 	ctx.Logger().Errorf("(%s): %s: %v", ctx.Path(), msg, err)
+// }
+// func logWarn(ctx echo.Context, msg string) {
+// 	ctx.Logger().Warnf("(%s): %s", ctx.Path(), msg)
+// }
+
 func logError(ctx echo.Context, msg string, err error) {
-	ctx.Logger().Errorf("(%s): %s: %v", ctx.Path(), msg, err)
+    logger.LogAttrs(ctx.Request().Context(), slog.LevelError, "ERROR",
+        slog.String("uri", ctx.Path()),
+        slog.String("message", msg),
+        slog.String("error", err.Error()),
+    )
 }
 
 func logWarn(ctx echo.Context, msg string) {
-	ctx.Logger().Warnf("(%s): %s", ctx.Path(), msg)
+    logger.LogAttrs(ctx.Request().Context(), slog.LevelWarn, "WARN",
+        slog.String("uri", ctx.Path()),
+        slog.String("message", msg),
+    )
 }
 
 func renderTemplate(values models.DBAlertDefinitionValues, template string) (api.AlertDefinitionTemplate, error) {
@@ -306,19 +321,19 @@ func renderTemplate(values models.DBAlertDefinitionValues, template string) (api
 		Threshold: strconv.Itoa(int(*values.Threshold)),
 		Duration:  FormatDuration(time.Duration(*values.Duration) * time.Second),
 	}
-
+	
 	var tmpl api.AlertDefinitionTemplate
 	err := yaml.Unmarshal([]byte(template), &tmpl)
 	if err != nil {
 		return api.AlertDefinitionTemplate{}, fmt.Errorf("failed to unmarshal template into struct: %w", err)
 	}
-
+	
 	expr, err := rules.ParseExpression(data, *tmpl.Expr)
 	if err != nil {
 		return api.AlertDefinitionTemplate{}, fmt.Errorf("failed to parse the expression %q: %w", *tmpl.Expr, err)
 	}
 	tmpl.Expr = &expr
-
+	
 	return tmpl, nil
 }
 
@@ -326,9 +341,9 @@ func FormatDuration(dur time.Duration) string {
 	hours := dur / time.Hour
 	minutes := (dur % time.Hour) / time.Minute
 	seconds := (dur % time.Minute) / time.Second
-
+	
 	var builder strings.Builder
-
+	
 	// Add hours if non-zero
 	if hours > 0 {
 		builder.WriteString(fmt.Sprintf("%dh", hours))
