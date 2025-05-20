@@ -29,7 +29,7 @@ func (ah *AuthenticationHandler) authenticate(next echo.HandlerFunc) echo.Handle
 	return func(c echo.Context) error {
 		err := ah.ensureAuthenticated(c)
 		if err != nil {
-			logError(c, logger, "Failed to authenticate token", err)
+			logError(c, "Failed to authenticate token", err)
 			return echo.NewHTTPError(http.StatusUnauthorized, "Failed to authenticate token")
 		}
 		return next(c)

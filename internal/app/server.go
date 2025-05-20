@@ -29,6 +29,7 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 	// Creating new Echo server
 	e := echo.New()
 
+	// Create a custom logger using slog
 	opts := setLogLvl(e, logLvl)
 	logger = slog.New(slog.NewJSONHandler(os.Stdout, &opts))
 
@@ -50,7 +51,7 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 		e.Logger.Panic(err)
 	}
 
-	serverInterface := NewServerInterfaceHandler(conf, db, m2m, logger)
+	serverInterface := NewServerInterfaceHandler(conf, db, m2m)
 
 	sqlDB, err := db.DB()
 	if err != nil {
@@ -62,10 +63,12 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 	api.RegisterHandlers(e, serverInterface)
 	authenticationHandler := NewAuthenticationHandler(conf.Authentication.OidcServer, conf.Authentication.OidcServerRealm)
 
+
 	// Midd
 	e.Use(authorize)
 	e.Use(authenticationHandler.authenticate)
 	e.Use(middleware.Recover())
+	// Use middleware to log requests with the custom logger
 	e.Use(middleware.RequestLoggerWithConfig(
 		middleware.RequestLoggerConfig{
 			// NOTE: skipping GET requests from curl/kube-probe to /edgenode/api/v1/status

@@ -132,7 +132,7 @@ func (a *M2MAuthenticator) getM2MToken(ctx echo.Context) (string, error) {
 
 	clientsecret, err := a.vault.getClientSecret(ctx.Request().Context())
 	if err != nil {
-		logWarn(ctx, logger, fmt.Sprintf("Failed to retrieve client secret from vault, attempting to retrieve from keycloak: %v", err))
+		logWarn(ctx, fmt.Sprintf("Failed to retrieve client secret from vault, attempting to retrieve from keycloak: %v", err))
 
 		jwtB64, err := getB64JWT(authorizationHeader)
 		if err != nil {

@@ -291,14 +291,14 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 	return res, nil
 }
 
-func logErrorOld(ctx echo.Context, msg string, err error) {
-	ctx.Logger().Errorf("(%s): %s: %v", ctx.Path(), msg, err)
-}
-func logWarnOld(ctx echo.Context, msg string) {
-	ctx.Logger().Warnf("(%s): %s", ctx.Path(), msg)
-}
+// func logError(ctx echo.Context, msg string, err error) {
+// 	ctx.Logger().Errorf("(%s): %s: %v", ctx.Path(), msg, err)
+// }
+// func logWarn(ctx echo.Context, msg string) {
+// 	ctx.Logger().Warnf("(%s): %s", ctx.Path(), msg)
+// }
 
-func logError(ctx echo.Context, logger *slog.Logger, msg string, err error) {
+func logError(ctx echo.Context, msg string, err error) {
     logger.LogAttrs(ctx.Request().Context(), slog.LevelError, "ERROR",
         slog.String("uri", ctx.Path()),
         slog.String("message", msg),
@@ -306,12 +306,41 @@ func logError(ctx echo.Context, logger *slog.Logger, msg string, err error) {
     )
 }
 
-func logWarn(ctx echo.Context, logger *slog.Logger, msg string) {
+func logWarn(ctx echo.Context, msg string) {
     logger.LogAttrs(ctx.Request().Context(), slog.LevelWarn, "WARN",
         slog.String("uri", ctx.Path()),
         slog.String("message", msg),
     )
 }
+
+// func logStructure(ctx echo.Context, level slog.Level, msg string, err error) {
+//     attrs := []slog.Attr{
+//         slog.String("time", time.Now().Format(time.RFC3339)),
+//         slog.String("level", level.String()),
+//         slog.String("source", ctx.Path()),
+//         slog.String("message", msg),
+//     }
+
+//     if err != nil {
+//         attrs = append(attrs, slog.String("error", err.Error()))
+//     }
+
+//     logger.LogAttrs(ctx.Request().Context(), level, "LOG", attrs...)
+// }
+
+
+// func logErrorN(ctx echo.Context, msg string, err error) {
+//     logStructure(ctx, logger, slog.LevelError, msg, err)
+// }
+
+// func logWarnN(ctx echo.Context, msg string) {
+//     logStructure(ctx, logger, slog.LevelWarn, msg, nil)
+// }
+
+// func logInfo(ctx echo.Context, msg string) {
+//     logStructure(ctx, logger, slog.LevelInfo, msg, nil)
+// }
+
 
 
 func renderTemplate(values models.DBAlertDefinitionValues, template string) (api.AlertDefinitionTemplate, error) {
@@ -322,29 +351,43 @@ func renderTemplate(values models.DBAlertDefinitionValues, template string) (api
 		Threshold: strconv.Itoa(int(*values.Threshold)),
 		Duration:  FormatDuration(time.Duration(*values.Duration) * time.Second),
 	}
-
+	
 	var tmpl api.AlertDefinitionTemplate
 	err := yaml.Unmarshal([]byte(template), &tmpl)
 	if err != nil {
 		return api.AlertDefinitionTemplate{}, fmt.Errorf("failed to unmarshal template into struct: %w", err)
 	}
-
+	
 	expr, err := rules.ParseExpression(data, *tmpl.Expr)
 	if err != nil {
 		return api.AlertDefinitionTemplate{}, fmt.Errorf("failed to parse the expression %q: %w", *tmpl.Expr, err)
 	}
 	tmpl.Expr = &expr
-
+	
 	return tmpl, nil
 }
 
+// func logError(ctx echo.Context, logger *slog.Logger, msg string, err error) {
+//     logger.LogAttrs(ctx.Request().Context(), slog.LevelError, "ERROR",
+//         slog.String("source", ctx.Path()),
+//         slog.String("message", msg),
+//         slog.String("error", err.Error()),
+//     )
+// }
+
+// func logWarn(ctx echo.Context, logger *slog.Logger, msg string) {
+//     logger.LogAttrs(ctx.Request().Context(), slog.LevelWarn, "WARN",
+//         slog.String("source", ctx.Path()),
+//         slog.String("message", msg),
+//     )
+// }
 func FormatDuration(dur time.Duration) string {
 	hours := dur / time.Hour
 	minutes := (dur % time.Hour) / time.Minute
 	seconds := (dur % time.Minute) / time.Second
-
+	
 	var builder strings.Builder
-
+	
 	// Add hours if non-zero
 	if hours > 0 {
 		builder.WriteString(fmt.Sprintf("%dh", hours))
