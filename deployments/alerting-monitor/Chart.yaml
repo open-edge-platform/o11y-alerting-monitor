@@ -8,8 +8,8 @@ type: application
 version: 1.8.1-log
 appVersion: 1.8.1-log
 annotations:
-  revision: "fe93e97672ebb4d983475cc0906a3e13460acdcb"
-  created: "2025-05-20T15:25:18Z"
+  revision: "444acb40cc89cd351e882e424cceeed253f0cfc3"
+  created: "2025-05-26T10:20:13Z"
 dependencies:
   - name: alertmanager
     condition: import.alertmanager.enabled
