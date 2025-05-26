@@ -141,6 +141,8 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 }
 
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
+
+	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "GetAlertDefinitions handler started")
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
 	if err != nil {
 		logError(ctx, errHTTPFailedToGetAlertDefinitions, err)

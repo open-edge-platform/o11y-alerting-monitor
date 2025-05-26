@@ -36,7 +36,7 @@ func validateLogLevel(value string) error {
 func main() {
 	configFile := flag.String("config", "", "config file path")
 	apiPort := flag.Int("port", 8080, "API service port")
-	logLevel := flag.String("log-level", "info", "API server log level")
+	logLevel := flag.String("log-level", "de", "API server log level")
 
 	flag.Parse()
 
