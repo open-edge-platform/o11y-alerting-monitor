@@ -51,7 +51,7 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 		e.Logger.Panic(err)
 	}
 
-	serverInterface := NewServerInterfaceHandler(conf, db, m2m, logger)
+	serverInterface := NewServerInterfaceHandler(conf, db, m2m)
 
 	sqlDB, err := db.DB()
 	if err != nil {

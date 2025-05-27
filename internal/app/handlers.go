@@ -29,7 +29,6 @@ type ServerInterfaceHandler struct {
 	receivers   db.ReceiverHandlerManager
 	definitions db.AlertDefinitionHandlerManager
 	m2m         M2MConnection
-	logger        *slog.Logger
 
 	configuration config.Config
 }
@@ -50,7 +49,7 @@ const (
 	errHTTPFailedToExtractProjectID           = "failed to extract projectID"
 )
 
-func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m M2MConnection, logger *slog.Logger) *ServerInterfaceHandler {
+func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m M2MConnection) *ServerInterfaceHandler {
 	return &ServerInterfaceHandler{
 		configuration: configuration,
 		receivers: &db.DBService{
@@ -60,7 +59,6 @@ func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m
 			DB: dbConn,
 		},
 		m2m: m2m,
-		logger: logger,
 	}
 }
 
@@ -144,11 +142,12 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 }
 
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
-	//użycie slog.Logger do logowania informacji o otrzymanym sygnale
-	w.logger.Info("GetAlertDefinitions handler started")
+
+	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "GetAlertDefinitions handler started")
 	
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
 	if err != nil {
+		logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "Error occurred in GetLatestAlertDefinitionList", slog.String("error", err.Error()))
 		logError(ctx, errHTTPFailedToGetAlertDefinitions, err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
@@ -156,6 +155,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 		})
 	}
 
+	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "Successfully retrieved alert definitions")
 
 	definitions := make([]api.AlertDefinition, 0, len(dbDefinitions))
 	for _, d := range dbDefinitions {
@@ -180,6 +180,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 		})
 	}
 
+	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "Returning response with alert definitions")
 	
 	return ctx.JSON(http.StatusOK, api.AlertDefinitionList{
 		AlertDefinitions: &definitions,
@@ -610,13 +611,6 @@ func (w *ServerInterfaceHandler) PatchProjectAlertReceiver(ctx echo.Context, rec
 func (w *ServerInterfaceHandler) GetServiceStatus(ctx echo.Context) error {
 	// projectID will be ignored (status doesn't depend on projectID/tenantID)
 	return w.GetStatus(ctx, DefaultTenantID)
-}
-
-func (w *ServerInterfaceHandler) logError(ctx echo.Context, msg string, err error) {
-    w.logger.LogAttrs(ctx.Request().Context(), slog.LevelError, msg,
-        slog.String("path", ctx.Path()),
-        slog.String("error", err.Error()),
-    )
 }
 
 func extractProjectID(ctx echo.Context) (string, error) {
