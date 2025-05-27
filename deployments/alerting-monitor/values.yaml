@@ -16,7 +16,7 @@ management:
   pullPolicy: IfNotPresent
 
 devMode: false
-logLevel: "info"  # accepted values: "debug", "info", "warn", "error"
+logLevel: "debug"  # accepted values: "debug", "info", "warn", "error"
 
 initialRules:
   init: true
