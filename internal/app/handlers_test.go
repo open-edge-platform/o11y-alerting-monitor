@@ -261,7 +261,7 @@ func TestGetAlerts(t *testing.T) {
 				configfile.AlertManager.URL = svr.URL
 				defer svr.Close()
 			}
-			serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil)
+			serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil, logger)
 
 			// Registering API call handlers
 			api.RegisterHandlers(e, serverInterface)
@@ -2082,7 +2082,7 @@ func TestGetStatus(t *testing.T) {
 	t.Run("Error - Could not reach alert manager", func(t *testing.T) {
 		configfile := conf
 		configfile.AlertManager.URL = "dummy-alert-manager:8080"
-		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil)
+		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil, logger)
 
 		// Creating new Echo server
 		e := echo.New()
@@ -2119,7 +2119,7 @@ func TestGetStatus(t *testing.T) {
 		defer server.Close()
 
 		configfile.AlertManager.URL = server.URL
-		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil)
+		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil, logger)
 
 		// Creating new Echo server
 		e := echo.New()
@@ -2159,7 +2159,7 @@ func TestGetStatus(t *testing.T) {
 		defer server.Close()
 
 		configfile.AlertManager.URL = server.URL
-		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil)
+		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil, logger)
 
 		// Registering API call handlers
 		api.RegisterHandlers(e, serverInterface)
@@ -2204,7 +2204,7 @@ func TestGetStatus(t *testing.T) {
 
 		configfile.AlertManager.URL = alertSrv.URL
 		configfile.Mimir.RulerURL = mimirSrv.URL
-		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil)
+		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil, logger)
 
 		// Registering API call handlers
 		api.RegisterHandlers(e, serverInterface)
@@ -2257,7 +2257,7 @@ func TestGetStatus(t *testing.T) {
 		configfile.AlertManager.URL = alertSrv.URL
 		configfile.Mimir.RulerURL = mimirSrv.URL
 		configfile.Mimir.Namespace = namespace
-		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil)
+		serverInterface := NewServerInterfaceHandler(configfile, &gorm.DB{}, nil, logger)
 
 		// Registering API call handlers
 		api.RegisterHandlers(e, serverInterface)

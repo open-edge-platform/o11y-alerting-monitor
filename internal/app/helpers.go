@@ -289,27 +289,27 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 
 	return res, nil
 }
-
+// Use Echo's logger, formatted strings not structured logging
 func logError(ctx echo.Context, msg string, err error) {
 	ctx.Logger().Errorf("(%s): %s: %v test", ctx.Path(), msg, err)
 }
+// Use Echo's logger, formatted strings not structured logging
 func logWarn(ctx echo.Context, msg string) {
 	ctx.Logger().Warnf("(%s): %s test", ctx.Path(), msg)
 }
 
+
 // func logError(ctx echo.Context, msg string, err error) {
-//     logger.LogAttrs(ctx.Request().Context(), slog.LevelError, "ERROR",
-//         slog.String("uri", ctx.Path()),
-//         slog.String("message", msg),
-//         slog.String("error", err.Error()),
-//     )
+// 	logger.LogAttrs(ctx.Request().Context(), slog.LevelError, msg,
+// 		slog.String("path", ctx.Path()),
+// 		slog.String("error", err.Error()),
+// 	)
 // }
 
 // func logWarn(ctx echo.Context, msg string) {
-//     logger.LogAttrs(ctx.Request().Context(), slog.LevelWarn, "WARN",
-//         slog.String("uri", ctx.Path()),
-//         slog.String("message", msg),
-//     )
+// 	logger.LogAttrs(ctx.Request().Context(), slog.LevelWarn, msg,
+// 		slog.String("path", ctx.Path()),
+// 	)
 // }
 
 func renderTemplate(values models.DBAlertDefinitionValues, template string) (api.AlertDefinitionTemplate, error) {
