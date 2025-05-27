@@ -6,6 +6,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/MicahParks/keyfunc/v3"
@@ -25,11 +26,19 @@ func NewAuthenticationHandler(oidcServer string, oidcRealm string) *Authenticati
 	}
 }
 
+func (w *AuthenticationHandler) logError(ctx echo.Context, message string, err error, attrs ...slog.Attr) {
+    slog.LogAttrs(ctx.Request().Context(), slog.LevelError, message,
+        slog.String("path", ctx.Path()),
+        slog.String("error", err.Error()),
+		slog.String("additional_info", "test-error"),
+    )
+}
+
 func (ah *AuthenticationHandler) authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		err := ah.ensureAuthenticated(c)
 		if err != nil {
-			logError(c, "Failed to authenticate token", err)
+			ah.logError(c, "Failed to authenticate token", err)
 			return echo.NewHTTPError(http.StatusUnauthorized, "Failed to authenticate token")
 		}
 		return next(c)

@@ -4,7 +4,6 @@
 package app
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -64,8 +63,26 @@ func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m
 }
 
 
-func (w *ServerInterfaceHandler) logInfo(ctx context.Context, message string, attrs ...slog.Attr) {
-    slog.LogAttrs(ctx, slog.LevelInfo, message, attrs...)
+func (w *ServerInterfaceHandler) logInfo(ctx echo.Context, message string, attrs ...slog.Attr) {
+    slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, message,
+		slog.String("additional_info", "test-info"),
+	)
+}
+
+
+func (w *ServerInterfaceHandler) logWarn(ctx echo.Context, message string, attrs ...slog.Attr) {
+    slog.LogAttrs(ctx.Request().Context(), slog.LevelWarn, message,
+        slog.String("path", ctx.Path()),
+		slog.String("additional_info", "test-warn"),
+    )
+}
+
+func (w *ServerInterfaceHandler) logError(ctx echo.Context, message string, err error, attrs ...slog.Attr) {
+    slog.LogAttrs(ctx.Request().Context(), slog.LevelError, message,
+        slog.String("path", ctx.Path()),
+        slog.String("error", err.Error()),
+		slog.String("additional_info", "test-error"),
+    )
 }
 
 func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.TenantID, params api.GetProjectAlertsParams) error {
@@ -87,7 +104,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	u, err := url.Parse(urlRaw)
 	if err != nil {
-		logError(ctx, "Error parsing alertmanager URL", err)
+		w.logError(ctx, "Error parsing alertmanager URL", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
@@ -96,7 +113,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	resp, err := http.Get(u.String())
 	if err != nil {
-		logError(ctx, "Failed to reach alertmanager", err)
+		w.logError(ctx, "Failed to reach alertmanager", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
@@ -107,7 +124,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	// Check if GET request have http code 200
 	if resp.StatusCode != http.StatusOK {
-		logWarn(ctx, fmt.Sprintf("Alertmanager returned HTTP status code: %v", resp.StatusCode))
+		w.logWarn(ctx, fmt.Sprintf("Alertmanager returned HTTP status code: %v", resp.StatusCode))
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
@@ -116,7 +133,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logError(ctx, "Failed to read response body", err)
+		w.logError(ctx, "Failed to read response body", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
@@ -125,7 +142,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	err = json.Unmarshal(body, &unmarshalledResponse.Alerts)
 	if err != nil {
-		logError(ctx, "Error unmarshalling response body", err)
+		w.logError(ctx, "Error unmarshalling response body", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
@@ -134,7 +151,7 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	err = filterAnnotations(unmarshalledResponse.Alerts)
 	if err != nil {
-		logError(ctx, "Error filtering annotations", err)
+		w.logError(ctx, "Error filtering annotations", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlerts,
@@ -149,17 +166,11 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
 
-	// slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, "GetAlertDefinitions executed",
-    //     slog.String("additional_info", "obs"),
-    // )
-
-	w.logInfo(ctx.Request().Context(), "GetAlertDefinitions executed",
-        slog.String("additional_info", "test-method"),
-    )
+	w.logInfo(ctx, "GetAlertDefinitions executed")
 	
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
 	if err != nil {
-		logError(ctx, errHTTPFailedToGetAlertDefinitions, err)
+		w.logError(ctx, errHTTPFailedToGetAlertDefinitions, err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertDefinitions,
@@ -199,13 +210,13 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 func (w *ServerInterfaceHandler) GetAlertDefinition(ctx echo.Context, tenantID api.TenantID, id api.AlertDefinitionId) error {
 	ad, err := w.definitions.GetLatestAlertDefinition(ctx.Request().Context(), tenantID, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logError(ctx, fmt.Sprintf("Alert definition not found: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Alert definition not found: %q", id), err)
 		return ctx.JSON(http.StatusNotFound, api.HttpError{
 			Code:    http.StatusNotFound,
 			Message: errHTTPAlertDefinitionNotFound,
 		})
 	} else if err != nil {
-		logError(ctx, fmt.Sprintf("Failed to retrieve alert definition: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Failed to retrieve alert definition: %q", id), err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertDefinition,
@@ -234,7 +245,7 @@ func (w *ServerInterfaceHandler) PatchAlertDefinition(ctx echo.Context, tenantID
 	dec := json.NewDecoder(ctx.Request().Body)
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&reqBody); err != nil {
-		logError(ctx, "Failed to parse body of alert definition", err)
+		w.logError(ctx, "Failed to parse body of alert definition", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPBadRequest,
@@ -243,7 +254,7 @@ func (w *ServerInterfaceHandler) PatchAlertDefinition(ctx echo.Context, tenantID
 
 	values, err := parseAlertDefinitionValues(reqBody)
 	if err != nil {
-		logError(ctx, "Failed to parse alert definition values", err)
+		w.logError(ctx, "Failed to parse alert definition values", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToPatchAlertDefinition,
@@ -253,19 +264,19 @@ func (w *ServerInterfaceHandler) PatchAlertDefinition(ctx echo.Context, tenantID
 	if err := w.definitions.SetAlertDefinitionValues(ctx.Request().Context(), tenantID, id, *values); err != nil {
 		switch {
 		case errors.Is(err, gorm.ErrRecordNotFound):
-			logError(ctx, fmt.Sprintf("Alert definition not found: %q", id), err)
+			w.logError(ctx, fmt.Sprintf("Alert definition not found: %q", id), err)
 			return ctx.JSON(http.StatusNotFound, api.HttpError{
 				Code:    http.StatusNotFound,
 				Message: errHTTPAlertDefinitionNotFound,
 			})
 		case errors.Is(err, db.ErrValueOutOfBounds):
-			logError(ctx, fmt.Sprintf("Alert definition value/s are out-of-bounds: %q", id), err)
+			w.logError(ctx, fmt.Sprintf("Alert definition value/s are out-of-bounds: %q", id), err)
 			return ctx.JSON(http.StatusBadRequest, api.HttpError{
 				Code:    http.StatusBadRequest,
 				Message: "alert definition value/s out-of-bounds",
 			})
 		default:
-			logError(ctx, fmt.Sprintf("Failed to set alert definition values: %q", id), err)
+			w.logError(ctx, fmt.Sprintf("Failed to set alert definition values: %q", id), err)
 			return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 				Code:    http.StatusInternalServerError,
 				Message: errHTTPFailedToPatchAlertDefinition,
@@ -280,13 +291,13 @@ func (w *ServerInterfaceHandler) GetAlertDefinitionRule(ctx echo.Context, tenant
 	params api.GetProjectAlertDefinitionRuleParams) error {
 	ad, err := w.definitions.GetLatestAlertDefinition(ctx.Request().Context(), tenantID, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logError(ctx, fmt.Sprintf("Alert definition not found: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Alert definition not found: %q", id), err)
 		return ctx.JSON(http.StatusNotFound, api.HttpError{
 			Code:    http.StatusNotFound,
 			Message: errHTTPAlertDefinitionTemplateNotFound,
 		})
 	} else if err != nil {
-		logError(ctx, fmt.Sprintf("Failed to retrieve alert definition template: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Failed to retrieve alert definition template: %q", id), err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertDefinitionTemplate,
@@ -302,7 +313,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitionRule(ctx echo.Context, tenant
 	if params.Rendered != nil && !*params.Rendered {
 		//nolint:musttag // api.AlertDefinitionTemplate contains autogenerated code
 		if err := yaml.Unmarshal([]byte(ad.Template), &apiResponse); err != nil {
-			logError(ctx, fmt.Sprintf("Failed to unmarshal template into template api response struct: %q", id), err)
+			w.logError(ctx, fmt.Sprintf("Failed to unmarshal template into template api response struct: %q", id), err)
 			return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 				Code:    http.StatusInternalServerError,
 				Message: errHTTPFailedToGetAlertDefinitionTemplate,
@@ -313,7 +324,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitionRule(ctx echo.Context, tenant
 
 	apiResponse, err = renderTemplate(ad.Values, ad.Template)
 	if err != nil {
-		logError(ctx, fmt.Sprintf("Failed to render alert definition template: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Failed to render alert definition template: %q", id), err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertDefinitionTemplate,
@@ -326,7 +337,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitionRule(ctx echo.Context, tenant
 func (w *ServerInterfaceHandler) GetAlertReceivers(ctx echo.Context, tenantID api.TenantID) error {
 	dbRecvs, err := w.receivers.GetLatestReceiverListWithEmailConfig(ctx.Request().Context(), tenantID)
 	if err != nil {
-		logError(ctx, "Failed to get alert receivers", err)
+		w.logError(ctx, "Failed to get alert receivers", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertReceivers,
@@ -335,7 +346,7 @@ func (w *ServerInterfaceHandler) GetAlertReceivers(ctx echo.Context, tenantID ap
 
 	allowedEmailRecipients, err := getAllowedEmailList(ctx, w.m2m)
 	if err != nil {
-		logError(ctx, "Failed to get allowed email recipient list", err)
+		w.logError(ctx, "Failed to get allowed email recipient list", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertReceivers,
@@ -374,13 +385,13 @@ func (w *ServerInterfaceHandler) GetAlertReceivers(ctx echo.Context, tenantID ap
 func (w *ServerInterfaceHandler) GetAlertReceiver(ctx echo.Context, tenantID api.TenantID, id api.ReceiverId) error {
 	recv, err := w.receivers.GetLatestReceiverWithEmailConfig(ctx.Request().Context(), tenantID, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logError(ctx, fmt.Sprintf("Alert receiver not found: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Alert receiver not found: %q", id), err)
 		return ctx.JSON(http.StatusNotFound, api.HttpError{
 			Code:    http.StatusNotFound,
 			Message: errHTTPAlertReceiverNotFound,
 		})
 	} else if err != nil {
-		logError(ctx, fmt.Sprintf("Failed to get alert receiver with UUID: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Failed to get alert receiver with UUID: %q", id), err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertReceiver,
@@ -389,7 +400,7 @@ func (w *ServerInterfaceHandler) GetAlertReceiver(ctx echo.Context, tenantID api
 
 	allowedEmailRecipients, err := getAllowedEmailList(ctx, w.m2m)
 	if err != nil {
-		logError(ctx, "Failed to get allowed email recipient list", err)
+		w.logError(ctx, "Failed to get allowed email recipient list", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertReceiver,
@@ -420,7 +431,7 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 	dec := json.NewDecoder(ctx.Request().Body)
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&reqBody); err != nil {
-		logError(ctx, "Failed to parse body of alert receiver", err)
+		w.logError(ctx, "Failed to parse body of alert receiver", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPBadRequest,
@@ -429,7 +440,7 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 
 	allowed, err := getAllowedEmailList(ctx, w.m2m)
 	if err != nil {
-		logError(ctx, "Failed to get allowed email recipients", err)
+		w.logError(ctx, "Failed to get allowed email recipients", err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToPatchAlertReceivers,
@@ -438,7 +449,7 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 
 	// Ensures email recipients are allowed.
 	if err := validateRecipients(reqBody.EmailConfig.To.Enabled, allowed); err != nil {
-		logError(ctx, "Email recipient list contains not allowed email recipient/s", err)
+		w.logError(ctx, "Email recipient list contains not allowed email recipient/s", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPBadRequest,
@@ -447,7 +458,7 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 
 	emailRecipients, err := parseEmailRecipients(reqBody.EmailConfig.To.Enabled)
 	if err != nil {
-		logError(ctx, "Failed to parse email recipients", err)
+		w.logError(ctx, "Failed to parse email recipients", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPBadRequest,
@@ -456,13 +467,13 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 
 	err = w.receivers.SetReceiverEmailRecipients(ctx.Request().Context(), tenantID, id, emailRecipients)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logError(ctx, fmt.Sprintf("Alert receiver not found: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Alert receiver not found: %q", id), err)
 		return ctx.JSON(http.StatusNotFound, api.HttpError{
 			Code:    http.StatusNotFound,
 			Message: errHTTPAlertReceiverNotFound,
 		})
 	} else if err != nil {
-		logError(ctx, fmt.Sprintf("Failed to update email recipients for receiver with UUID: %q", id), err)
+		w.logError(ctx, fmt.Sprintf("Failed to update email recipients for receiver with UUID: %q", id), err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToPatchAlertReceivers,
@@ -478,14 +489,14 @@ func (w *ServerInterfaceHandler) GetStatus(ctx echo.Context, _ api.TenantID) err
 
 	alertManagerStatus, err := getAlertManagerStatus(conf.AlertManager.URL)
 	if err != nil {
-		logError(ctx, "Failed to get alert manager status", err)
+		w.logError(ctx, "Failed to get alert manager status", err)
 		return ctx.JSON(http.StatusOK, &api.ServiceStatus{
 			State: api.Failed,
 		})
 	}
 
 	if alertManagerStatus != "ready" {
-		logWarn(ctx, "Alert manager not ready")
+		w.logWarn(ctx, "Alert manager not ready")
 		return ctx.JSON(http.StatusOK, &api.ServiceStatus{
 			State: api.Failed,
 		})
@@ -493,14 +504,14 @@ func (w *ServerInterfaceHandler) GetStatus(ctx echo.Context, _ api.TenantID) err
 
 	mimirRulerStatusOK, err := isMimirRulerReachable(conf.Mimir.RulerURL)
 	if err != nil {
-		logError(ctx, "Failed to reach Mimir ruler", err)
+		w.logError(ctx, "Failed to reach Mimir ruler", err)
 		return ctx.JSON(http.StatusOK, &api.ServiceStatus{
 			State: api.Failed,
 		})
 	}
 
 	if !mimirRulerStatusOK {
-		logWarn(ctx, "Mimir response invalid status code")
+		w.logWarn(ctx, "Mimir response invalid status code")
 		return ctx.JSON(http.StatusOK, &api.ServiceStatus{
 			State: api.Failed,
 		})
@@ -514,7 +525,7 @@ func (w *ServerInterfaceHandler) GetStatus(ctx echo.Context, _ api.TenantID) err
 func (w *ServerInterfaceHandler) GetProjectAlerts(ctx echo.Context, params api.GetProjectAlertsParams) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -527,7 +538,7 @@ func (w *ServerInterfaceHandler) GetProjectAlerts(ctx echo.Context, params api.G
 func (w *ServerInterfaceHandler) GetProjectAlertDefinitions(ctx echo.Context) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -540,7 +551,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitions(ctx echo.Context) er
 func (w *ServerInterfaceHandler) GetProjectAlertDefinition(ctx echo.Context, alertDefinitionID api.AlertDefinitionId) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -553,7 +564,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinition(ctx echo.Context, ale
 func (w *ServerInterfaceHandler) PatchProjectAlertDefinition(ctx echo.Context, alertDefinitionID api.AlertDefinitionId) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -568,7 +579,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitionRule(
 ) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -581,7 +592,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitionRule(
 func (w *ServerInterfaceHandler) GetProjectAlertReceivers(ctx echo.Context) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -594,7 +605,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertReceivers(ctx echo.Context) erro
 func (w *ServerInterfaceHandler) GetProjectAlertReceiver(ctx echo.Context, receiverID api.ReceiverId) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,
@@ -607,7 +618,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertReceiver(ctx echo.Context, recei
 func (w *ServerInterfaceHandler) PatchProjectAlertReceiver(ctx echo.Context, receiverID api.ReceiverId) error {
 	projectID, err := extractProjectID(ctx)
 	if err != nil {
-		logError(ctx, "Failed to extract projectID", err)
+		w.logError(ctx, "Failed to extract projectID", err)
 		return ctx.JSON(http.StatusBadRequest, api.HttpError{
 			Code:    http.StatusBadRequest,
 			Message: errHTTPFailedToExtractProjectID,

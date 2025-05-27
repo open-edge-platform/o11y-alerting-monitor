@@ -297,20 +297,6 @@ func logWarn(ctx echo.Context, msg string) {
 	ctx.Logger().Warnf("(%s): %s test", ctx.Path(), msg)
 }
 
-// func logError(ctx echo.Context, msg string, err error) {
-//     logger.LogAttrs(ctx.Request().Context(), slog.LevelError, "ERROR",
-//         slog.String("uri", ctx.Path()),
-//         slog.String("message", msg),
-//         slog.String("error", err.Error()),
-//     )
-// }
-
-// func logWarn(ctx echo.Context, msg string) {
-//     logger.LogAttrs(ctx.Request().Context(), slog.LevelWarn, "WARN",
-//         slog.String("uri", ctx.Path()),
-//         slog.String("message", msg),
-//     )
-// }
 
 func renderTemplate(values models.DBAlertDefinitionValues, template string) (api.AlertDefinitionTemplate, error) {
 	if values.Threshold == nil || values.Duration == nil {
