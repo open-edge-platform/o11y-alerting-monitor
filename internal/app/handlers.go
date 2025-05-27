@@ -4,6 +4,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -60,6 +61,11 @@ func NewServerInterfaceHandler(configuration config.Config, dbConn *gorm.DB, m2m
 		},
 		m2m: m2m,
 	}
+}
+
+
+func (w *ServerInterfaceHandler) logInfo(ctx context.Context, message string, attrs ...slog.Attr) {
+    slog.LogAttrs(ctx, slog.LevelInfo, message, attrs...)
 }
 
 func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.TenantID, params api.GetProjectAlertsParams) error {
@@ -143,8 +149,12 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
 
-	slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, "GetAlertDefinitions executed",
-        slog.String("additional_info", "obs"),
+	// slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, "GetAlertDefinitions executed",
+    //     slog.String("additional_info", "obs"),
+    // )
+
+	w.logInfo(ctx.Request().Context(), "GetAlertDefinitions executed",
+        slog.String("additional_info", "test-method"),
     )
 	
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
