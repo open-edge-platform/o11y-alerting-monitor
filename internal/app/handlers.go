@@ -140,17 +140,22 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 	return ctx.JSONPretty(http.StatusOK, unmarshalledResponse, "\t")
 }
 
+
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
 
 	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "GetAlertDefinitions handler started")
+	
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
 	if err != nil {
+		logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "Error occurred in GetLatestAlertDefinitionList", slog.String("error", err.Error()))
 		logError(ctx, errHTTPFailedToGetAlertDefinitions, err)
 		return ctx.JSON(http.StatusInternalServerError, api.HttpError{
 			Code:    http.StatusInternalServerError,
 			Message: errHTTPFailedToGetAlertDefinitions,
 		})
 	}
+
+	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "Successfully retrieved alert definitions")
 
 	definitions := make([]api.AlertDefinition, 0, len(dbDefinitions))
 	for _, d := range dbDefinitions {
@@ -175,6 +180,8 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 		})
 	}
 
+	logger.LogAttrs(ctx.Request().Context(), slog.LevelDebug, "Returning response with alert definitions")
+	
 	return ctx.JSON(http.StatusOK, api.AlertDefinitionList{
 		AlertDefinitions: &definitions,
 	})
