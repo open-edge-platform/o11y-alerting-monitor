@@ -143,7 +143,6 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
 
 	logInfo(ctx, "GetAlertDefinitions executed")
-	
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
 	if err != nil {
 		logError(ctx, errHTTPFailedToGetAlertDefinitions, err)
@@ -152,7 +151,6 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 			Message: errHTTPFailedToGetAlertDefinitions,
 		})
 	}
-
 
 	definitions := make([]api.AlertDefinition, 0, len(dbDefinitions))
 	for _, d := range dbDefinitions {
@@ -177,7 +175,6 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 		})
 	}
 
-	
 	return ctx.JSON(http.StatusOK, api.AlertDefinitionList{
 		AlertDefinitions: &definitions,
 	})

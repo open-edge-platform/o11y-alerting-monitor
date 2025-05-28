@@ -32,9 +32,9 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 	// Create a custom logger using slog
 	opts := setLogLvl(e, logLvl)
 	logger = slog.New(slog.NewJSONHandler(os.Stdout, &opts))
-
+	
 	// Set slog logger as the default logger for Echo to use the same logger configuration without explicitly passing the logger instance around.
-    slog.SetDefault(logger)
+	slog.SetDefault(logger)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -65,7 +65,6 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 	// Registering API call handlers
 	api.RegisterHandlers(e, serverInterface)
 	authenticationHandler := NewAuthenticationHandler(conf.Authentication.OidcServer, conf.Authentication.OidcServerRealm)
-
 
 	// Midd
 	e.Use(authorize)
