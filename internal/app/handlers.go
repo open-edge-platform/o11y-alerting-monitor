@@ -136,13 +136,12 @@ func (w *ServerInterfaceHandler) GetAlerts(ctx echo.Context, tenantID api.Tenant
 
 	filterOutMaintenanceAlerts(unmarshalledResponse.Alerts)
 
+	logInfo(ctx, "Return AlertList.")
 	// Response formatted as AlertList structure
 	return ctx.JSONPretty(http.StatusOK, unmarshalledResponse, "\t")
 }
 
 func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID api.TenantID) error {
-
-	logInfo(ctx, "GetAlertDefinitions executed")
 	dbDefinitions, err := w.definitions.GetLatestAlertDefinitionList(ctx.Request().Context(), tenantID)
 	if err != nil {
 		logError(ctx, errHTTPFailedToGetAlertDefinitions, err)
@@ -175,6 +174,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitions(ctx echo.Context, tenantID 
 		})
 	}
 
+	logInfo(ctx, "Return Alert Definitions.")
 	return ctx.JSON(http.StatusOK, api.AlertDefinitionList{
 		AlertDefinitions: &definitions,
 	})
@@ -203,6 +203,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinition(ctx echo.Context, tenantID a
 		"enabled":   strconv.FormatBool(*ad.Values.Enabled),
 	}
 	version := int(ad.Version)
+	logInfo(ctx, fmt.Sprintf("Return Alert Definition for ID: %q", id))
 	return ctx.JSON(http.StatusOK, api.AlertDefinition{
 		Id:      &ad.ID,
 		Name:    &ad.Name,
@@ -256,7 +257,7 @@ func (w *ServerInterfaceHandler) PatchAlertDefinition(ctx echo.Context, tenantID
 			})
 		}
 	}
-
+	logInfo(ctx, fmt.Sprintf("Patched Alert Definition for ID: %q", id))
 	return ctx.NoContent(http.StatusNoContent)
 }
 
@@ -303,7 +304,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitionRule(ctx echo.Context, tenant
 			Message: errHTTPFailedToGetAlertDefinitionTemplate,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Return Alert Definition Rule for ID: %q", id))
 	return ctx.JSON(http.StatusOK, apiResponse)
 }
 
@@ -351,7 +352,7 @@ func (w *ServerInterfaceHandler) GetAlertReceivers(ctx echo.Context, tenantID ap
 			},
 		}
 	}
-
+	logInfo(ctx, "Return Alert Receivers.")
 	return ctx.JSON(http.StatusOK, api.ReceiverList{Receivers: &receivers})
 }
 
@@ -381,6 +382,7 @@ func (w *ServerInterfaceHandler) GetAlertReceiver(ctx echo.Context, tenantID api
 	}
 
 	state := api.StateDefinition(recv.State)
+	logInfo(ctx, fmt.Sprintf("Return Alert Receiver for ID: %q", id))
 	return ctx.JSON(http.StatusOK, api.Receiver{
 		Id:      &recv.UUID,
 		Version: &recv.Version,
@@ -452,7 +454,7 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 			Message: errHTTPFailedToPatchAlertReceivers,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Patched Alert Receiver for ID: %q", id))
 	return ctx.NoContent(http.StatusNoContent)
 }
 
@@ -489,7 +491,7 @@ func (w *ServerInterfaceHandler) GetStatus(ctx echo.Context, _ api.TenantID) err
 			State: api.Failed,
 		})
 	}
-
+	logInfo(ctx, "Return Service Status.")
 	return ctx.JSON(http.StatusOK, &api.ServiceStatus{
 		State: api.Ready,
 	})
@@ -504,7 +506,7 @@ func (w *ServerInterfaceHandler) GetProjectAlerts(ctx echo.Context, params api.G
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, "Return Project Alerts.")
 	return w.GetAlerts(ctx, projectID, params)
 }
 
@@ -517,7 +519,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitions(ctx echo.Context) er
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, "Return Project Alert Definitions.")
 	return w.GetAlertDefinitions(ctx, projectID)
 }
 
@@ -530,7 +532,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinition(ctx echo.Context, ale
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Return Project Alert Definition for ID: %q", alertDefinitionID))
 	return w.GetAlertDefinition(ctx, projectID, alertDefinitionID)
 }
 
@@ -543,7 +545,7 @@ func (w *ServerInterfaceHandler) PatchProjectAlertDefinition(ctx echo.Context, a
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Patched Project Alert Definition for ID: %q", alertDefinitionID))
 	return w.PatchAlertDefinition(ctx, projectID, alertDefinitionID)
 }
 
@@ -558,7 +560,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitionRule(
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Return Project Alert Definition Rule for ID: %q", alertDefinitionID))
 	return w.GetAlertDefinitionRule(ctx, projectID, alertDefinitionID, params)
 }
 
@@ -571,7 +573,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertReceivers(ctx echo.Context) erro
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, "Return Project Alert Receivers.")
 	return w.GetAlertReceivers(ctx, projectID)
 }
 
@@ -584,7 +586,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertReceiver(ctx echo.Context, recei
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Return Project Alert Receiver for ID: %q", receiverID))
 	return w.GetAlertReceiver(ctx, projectID, receiverID)
 }
 
@@ -597,12 +599,13 @@ func (w *ServerInterfaceHandler) PatchProjectAlertReceiver(ctx echo.Context, rec
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-
+	logInfo(ctx, fmt.Sprintf("Patched Project Alert Receiver for ID: %q", receiverID))
 	return w.PatchAlertReceiver(ctx, projectID, receiverID)
 }
 
 func (w *ServerInterfaceHandler) GetServiceStatus(ctx echo.Context) error {
 	// projectID will be ignored (status doesn't depend on projectID/tenantID)
+	logInfo(ctx, "Return Service Status.")
 	return w.GetStatus(ctx, DefaultTenantID)
 }
 

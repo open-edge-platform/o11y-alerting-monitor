@@ -291,24 +291,24 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 	return res, nil
 }
 
-func logInfo(ctx echo.Context, message string, attrs ...slog.Attr) {
+func logInfo(ctx echo.Context, message string) {
 	slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, message,
-		slog.String("additional_info", "test-info"),
+		slog.String("component", "alerting-monitor"),
 	)
 }
 
-func logWarn(ctx echo.Context, message string, attrs ...slog.Attr) {
+func logWarn(ctx echo.Context, message string) {
 	slog.LogAttrs(ctx.Request().Context(), slog.LevelWarn, message,
 		slog.String("path", ctx.Path()),
-		slog.String("additional_info", "test-warn"),
+		slog.String("component", "alerting-monitor"),
 	)
 }
 
-func logError(ctx echo.Context, message string, err error, attrs ...slog.Attr) {
+func logError(ctx echo.Context, message string, err error) {
 	slog.LogAttrs(ctx.Request().Context(), slog.LevelError, message,
 		slog.String("path", ctx.Path()),
 		slog.String("error", err.Error()),
-		slog.String("additional_info", "test-error"),
+		slog.String("component", "alerting-monitor"),
 	)
 }
 
