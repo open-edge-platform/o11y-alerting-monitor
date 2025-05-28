@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -290,13 +291,26 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 	return res, nil
 }
 
-func logError(ctx echo.Context, msg string, err error) {
-	ctx.Logger().Errorf("(%s): %s: %v test", ctx.Path(), msg, err)
-}
-func logWarn(ctx echo.Context, msg string) {
-	ctx.Logger().Warnf("(%s): %s test", ctx.Path(), msg)
+func logInfo(ctx echo.Context, message string, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, message,
+		slog.String("additional_info", "test-info"),
+	)
 }
 
+func logWarn(ctx echo.Context, message string, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx.Request().Context(), slog.LevelWarn, message,
+		slog.String("path", ctx.Path()),
+		slog.String("additional_info", "test-warn"),
+	)
+}
+
+func logError(ctx echo.Context, message string, err error, attrs ...slog.Attr) {
+	slog.LogAttrs(ctx.Request().Context(), slog.LevelError, message,
+		slog.String("path", ctx.Path()),
+		slog.String("error", err.Error()),
+		slog.String("additional_info", "test-error"),
+	)
+}
 
 func renderTemplate(values models.DBAlertDefinitionValues, template string) (api.AlertDefinitionTemplate, error) {
 	if values.Threshold == nil || values.Duration == nil {

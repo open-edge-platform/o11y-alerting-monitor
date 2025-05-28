@@ -33,7 +33,7 @@ func StartServer(port int, conf config.Config, logLvl string, db *gorm.DB) {
 	opts := setLogLvl(e, logLvl)
 	logger = slog.New(slog.NewJSONHandler(os.Stdout, &opts))
 
-	// Set slog logger as the default logger for Echo
+	// Set slog logger as the default logger for Echo to use the same logger configuration without explicitly passing the logger instance around.
     slog.SetDefault(logger)
 
 	ctx, cancel := context.WithCancel(context.Background())
