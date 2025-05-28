@@ -320,19 +320,19 @@ func renderTemplate(values models.DBAlertDefinitionValues, template string) (api
 		Threshold: strconv.Itoa(int(*values.Threshold)),
 		Duration:  FormatDuration(time.Duration(*values.Duration) * time.Second),
 	}
-	
+
 	var tmpl api.AlertDefinitionTemplate
 	err := yaml.Unmarshal([]byte(template), &tmpl)
 	if err != nil {
 		return api.AlertDefinitionTemplate{}, fmt.Errorf("failed to unmarshal template into struct: %w", err)
 	}
-	
+
 	expr, err := rules.ParseExpression(data, *tmpl.Expr)
 	if err != nil {
 		return api.AlertDefinitionTemplate{}, fmt.Errorf("failed to parse the expression %q: %w", *tmpl.Expr, err)
 	}
 	tmpl.Expr = &expr
-	
+
 	return tmpl, nil
 }
 
@@ -340,9 +340,9 @@ func FormatDuration(dur time.Duration) string {
 	hours := dur / time.Hour
 	minutes := (dur % time.Hour) / time.Minute
 	seconds := (dur % time.Minute) / time.Second
-	
+
 	var builder strings.Builder
-	
+
 	// Add hours if non-zero
 	if hours > 0 {
 		builder.WriteString(fmt.Sprintf("%dh", hours))
