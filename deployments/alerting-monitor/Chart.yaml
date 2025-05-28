@@ -8,8 +8,8 @@ type: application
 version: 1.9.4-obs
 appVersion: 1.9.4-obs
 annotations:
-  revision: "9ad5c4cfd24b04e2499ed6489e1b43105465f75c"
-  created: "2025-05-28T08:31:50Z"
+  revision: "21aa23b4409b85c90f3299b3861adfc3a0756639"
+  created: "2025-05-28T08:40:44Z"
 dependencies:
   - name: alertmanager
     condition: import.alertmanager.enabled
