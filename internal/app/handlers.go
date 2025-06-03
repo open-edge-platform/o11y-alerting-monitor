@@ -254,6 +254,7 @@ func (w *ServerInterfaceHandler) PatchAlertDefinition(ctx echo.Context, tenantID
 			})
 		}
 	}
+
 	return ctx.NoContent(http.StatusNoContent)
 }
 
@@ -300,6 +301,7 @@ func (w *ServerInterfaceHandler) GetAlertDefinitionRule(ctx echo.Context, tenant
 			Message: errHTTPFailedToGetAlertDefinitionTemplate,
 		})
 	}
+
 	return ctx.JSON(http.StatusOK, apiResponse)
 }
 
@@ -347,6 +349,7 @@ func (w *ServerInterfaceHandler) GetAlertReceivers(ctx echo.Context, tenantID ap
 			},
 		}
 	}
+
 	return ctx.JSON(http.StatusOK, api.ReceiverList{Receivers: &receivers})
 }
 
@@ -447,6 +450,7 @@ func (w *ServerInterfaceHandler) PatchAlertReceiver(ctx echo.Context, tenantID a
 			Message: errHTTPFailedToPatchAlertReceivers,
 		})
 	}
+
 	return ctx.NoContent(http.StatusNoContent)
 }
 
@@ -483,6 +487,7 @@ func (w *ServerInterfaceHandler) GetStatus(ctx echo.Context, _ api.TenantID) err
 			State: api.Failed,
 		})
 	}
+
 	return ctx.JSON(http.StatusOK, &api.ServiceStatus{
 		State: api.Ready,
 	})
@@ -497,6 +502,7 @@ func (w *ServerInterfaceHandler) GetProjectAlerts(ctx echo.Context, params api.G
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.GetAlerts(ctx, projectID, params)
 }
 
@@ -509,6 +515,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitions(ctx echo.Context) er
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.GetAlertDefinitions(ctx, projectID)
 }
 
@@ -521,6 +528,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinition(ctx echo.Context, ale
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.GetAlertDefinition(ctx, projectID, alertDefinitionID)
 }
 
@@ -559,6 +567,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertReceivers(ctx echo.Context) erro
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.GetAlertReceivers(ctx, projectID)
 }
 
@@ -571,6 +580,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertReceiver(ctx echo.Context, recei
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.GetAlertReceiver(ctx, projectID, receiverID)
 }
 
@@ -583,6 +593,7 @@ func (w *ServerInterfaceHandler) PatchProjectAlertReceiver(ctx echo.Context, rec
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+	
 	return w.PatchAlertReceiver(ctx, projectID, receiverID)
 }
 
