@@ -291,12 +291,6 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 	return res, nil
 }
 
-func logInfo(ctx echo.Context, message string) {
-	slog.LogAttrs(ctx.Request().Context(), slog.LevelInfo, message,
-		slog.String("component", "alerting-monitor"),
-	)
-}
-
 func logWarn(ctx echo.Context, message string) {
 	slog.LogAttrs(ctx.Request().Context(), slog.LevelWarn, message,
 		slog.String("path", ctx.Path()),
