@@ -541,6 +541,7 @@ func (w *ServerInterfaceHandler) PatchProjectAlertDefinition(ctx echo.Context, a
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.PatchAlertDefinition(ctx, projectID, alertDefinitionID)
 }
 
@@ -555,6 +556,7 @@ func (w *ServerInterfaceHandler) GetProjectAlertDefinitionRule(
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
+
 	return w.GetAlertDefinitionRule(ctx, projectID, alertDefinitionID, params)
 }
 
@@ -593,7 +595,7 @@ func (w *ServerInterfaceHandler) PatchProjectAlertReceiver(ctx echo.Context, rec
 			Message: errHTTPFailedToExtractProjectID,
 		})
 	}
-	
+
 	return w.PatchAlertReceiver(ctx, projectID, receiverID)
 }
 
