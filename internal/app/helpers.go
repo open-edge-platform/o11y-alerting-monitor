@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -290,12 +291,19 @@ func parseEmailRecipients(recipientList []string) ([]models.EmailAddress, error)
 	return res, nil
 }
 
-func logError(ctx echo.Context, msg string, err error) {
-	ctx.Logger().Errorf("(%s): %s: %v", ctx.Path(), msg, err)
+func logWarn(ctx echo.Context, message string) {
+	slog.LogAttrs(ctx.Request().Context(), slog.LevelWarn, message,
+		slog.String("path", ctx.Path()),
+		slog.String("component", "alerting-monitor"),
+	)
 }
 
-func logWarn(ctx echo.Context, msg string) {
-	ctx.Logger().Warnf("(%s): %s", ctx.Path(), msg)
+func logError(ctx echo.Context, message string, err error) {
+	slog.LogAttrs(ctx.Request().Context(), slog.LevelError, message,
+		slog.String("path", ctx.Path()),
+		slog.String("error", err.Error()),
+		slog.String("component", "alerting-monitor"),
+	)
 }
 
 func renderTemplate(values models.DBAlertDefinitionValues, template string) (api.AlertDefinitionTemplate, error) {
