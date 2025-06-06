@@ -8,7 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.20.0
-	github.com/hashicorp/vault/api/auth/kubernetes v0.9.0
+	github.com/hashicorp/vault/api/auth/kubernetes v0.10.0
 	github.com/jmhodges/clock v1.2.0
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/labstack/gommon v0.4.2
@@ -19,7 +19,7 @@ require (
 	github.com/onsi/gomega v1.37.0
 	github.com/prometheus/prometheus v0.304.1
 	github.com/stretchr/testify v1.10.0
-	google.golang.org/grpc v1.72.2
+	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
