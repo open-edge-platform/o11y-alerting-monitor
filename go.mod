@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/MicahParks/keyfunc/v3 v3.4.0
 	github.com/buger/jsonparser v1.1.1
-	github.com/golang-jwt/jwt/v5 v5.2.3
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.20.0
 	github.com/hashicorp/vault/api/auth/kubernetes v0.10.0
