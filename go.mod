@@ -1,6 +1,6 @@
 module github.com/open-edge-platform/o11y-alerting-monitor
 
-go 1.24.0
+go 1.24.6
 
 require (
 	github.com/MicahParks/keyfunc/v3 v3.4.0
