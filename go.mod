@@ -15,7 +15,7 @@ require (
 	github.com/magefile/mage v1.15.0
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/oapi-codegen/testutil v1.1.0
-	github.com/onsi/ginkgo/v2 v2.25.1
+	github.com/onsi/ginkgo/v2 v2.25.2
 	github.com/onsi/gomega v1.38.2
 	github.com/prometheus/prometheus v0.305.0
 	github.com/stretchr/testify v1.11.1
