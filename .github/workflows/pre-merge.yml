@@ -1,3 +1,4 @@
+---
 # SPDX-FileCopyrightText: (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
@@ -16,7 +17,7 @@ jobs:
   pre-merge:
     permissions:
       contents: write
-    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@76700c2fb6d547733b9218d9638dca43f5296399 # 0.1.52
+    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@76700c2fb6d547733b9218d9638dca43f5296399   # 0.1.52
     with:
       run_reuse_check: true
       run_version_check: true
