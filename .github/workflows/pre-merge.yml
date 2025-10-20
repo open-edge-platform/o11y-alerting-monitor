@@ -64,3 +64,22 @@ jobs:
       artifacts_path: |
         ./build/coverage.out
         ./build/coverage.xml
+  final-check:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [pre-merge]
+    steps:
+      - name: Final Status Check
+        env:
+          pre_merge_result: ${{ needs.pre-merge.result }}
+        run: |
+          echo "Pre-merge result: $pre_merge_result"
+
+          if [ "$pre_merge_result" == "success" ] || [ "$pre_merge_result" == "skipped" ]; then
+            echo "Pre-merge check passed successfully."
+          else
+            echo "Pre-merge checks failed. PR can't be merged"
+            exit 1
+          fi
