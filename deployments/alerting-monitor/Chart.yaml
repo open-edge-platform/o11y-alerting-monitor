@@ -8,10 +8,10 @@ type: application
 version: 1.7.2
 appVersion: 1.7.2
 annotations:
-  revision: "cbcc6bd6af9d7a20370c7c4e993c2bec15cbdf43"
-  created: "2025-05-28T11:51:53Z"
+  revision: "6e92ff9f452f206a1a8a9b0a60d684477b064303"
+  created: "2025-10-20T16:04:01Z"
 dependencies:
   - name: alertmanager
     condition: import.alertmanager.enabled
-    version: "~1.14.0"
+    version: "~1.27.1"
     repository: "https://prometheus-community.github.io/helm-charts"
