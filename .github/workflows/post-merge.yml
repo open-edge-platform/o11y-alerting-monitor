@@ -47,7 +47,7 @@ jobs:
           changed_files: ${{ steps.discover-changed-files.outputs.changed_files }}
         run: |
           check_changed_files='false'
-          for file in "$changed_files"; docs
+          for file in "$changed_files"; do
             if [ "$file" == *".github"* ] || [ "$file" == *"LICENSES"* ]; then
               continue
             else
