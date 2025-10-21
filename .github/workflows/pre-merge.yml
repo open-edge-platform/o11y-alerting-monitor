@@ -61,13 +61,12 @@ jobs:
               break
             fi
           done
-          echo "check_changed_files=${check_changed_files}"
           echo "check_changed_files=${check_changed_files}" >> ${GITHUB_OUTPUT}
   pre-merge:
     permissions:
       contents: write
     needs: pre-checks
-    if: ${{ needs.pre-checks.outputs.filtered_projects != '[]' && needs.pre-checks.outputs.filtered_projects != '[""]' && needs.pre-checks.outputs.check_changed_files != 'false' }}
+    if: ${{ needs.pre-checks.outputs.filtered_projects != '[]' && needs.pre-checks.outputs.filtered_projects != '[""]' && needs.pre-checks.outputs.check_changed_files == 'true' }}
     uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
     with:
       run_reuse_check: true

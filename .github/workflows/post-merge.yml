@@ -75,7 +75,7 @@ jobs:
       security-events: write
       statuses: read
     needs: pre-checks
-    if: ${{ needs.pre-checks.outputs.filtered_projects != '[]' && needs.pre-checks.outputs.filtered_projects != '[""]' && needs.pre-checks.outputs.check_changed_files != 'false' }}
+    if: ${{ needs.pre-checks.outputs.filtered_projects != '[]' && needs.pre-checks.outputs.filtered_projects != '[""]' && needs.pre-checks.outputs.check_changed_files == 'true' }}
     uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
     with:
       run_version_check: true
