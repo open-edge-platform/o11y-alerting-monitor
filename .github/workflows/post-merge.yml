@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       filtered_projects: ${{ steps.filter-changes.outputs.filtered_projects }}
+      check_changed_files: ${{ contains(steps.check-files.outputs.check_changed_files, 'true') }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
@@ -35,6 +36,26 @@ jobs:
 
           filtered_projects=$(echo "$changed_projects" | jq -cr --argjson folders_to_remove "$folders_to_remove" 'map(select(. as $item | $folders_to_remove | index($item) | not))')
           echo "filtered_projects=${filtered_projects}" >> ${GITHUB_OUTPUT}
+      - name: "Discover Changed Files"
+        id: discover-changed-files
+        uses: open-edge-platform/orch-ci/discover-changed-files@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
+        with:
+          project_folder: "."
+      - name: "Filter Out Unwanted Changed Files"
+        id: check-files
+        env:
+          changed_files: ${{ steps.discover-changed-files.outputs.changed_files }}
+        run: |
+          check_changed_files='false'
+          for file in "$changed_files"; docs
+            if [ "$file" == *".github"* ] || [ "$file" == *"LICENSES"* ]; then
+              continue
+            else
+              check_changed_files='true'
+              break
+            fi
+          done
+          echo "check_changed_files=${check_changed_files}" >> ${GITHUB_OUTPUT}
   post-merge:
     permissions:
       # it combines `read-all` with `contents: write` and `security-events: write` - all of them needed by `post-merge.yml` workflow
@@ -54,7 +75,7 @@ jobs:
       security-events: write
       statuses: read
     needs: pre-checks
-    if: ${{ needs.pre-checks.outputs.filtered_projects != '[]' && needs.pre-checks.outputs.filtered_projects != '[""]' }}
+    if: ${{ needs.pre-checks.outputs.filtered_projects != '[]' && needs.pre-checks.outputs.filtered_projects != '[""]' && needs.pre-checks.outputs.check_changed_files != 'false' }}
     uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
     with:
       run_version_check: true
