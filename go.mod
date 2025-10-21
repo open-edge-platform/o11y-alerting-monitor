@@ -1,5 +1,6 @@
 module github.com/open-edge-platform/o11y-alerting-monitor
 
+
 go 1.24.6
 
 require (
