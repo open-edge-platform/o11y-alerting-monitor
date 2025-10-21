@@ -61,6 +61,7 @@ jobs:
               break
             fi
           done
+          echo "check_changed_files=${check_changed_files}"
           echo "check_changed_files=${check_changed_files}" >> ${GITHUB_OUTPUT}
   pre-merge:
     permissions:
