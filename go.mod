@@ -17,7 +17,7 @@ require (
 	github.com/oapi-codegen/testutil v1.1.0
 	github.com/onsi/ginkgo/v2 v2.26.0
 	github.com/onsi/gomega v1.38.2
-	github.com/prometheus/prometheus v0.307.0
+	github.com/prometheus/prometheus v0.307.2
 	github.com/stretchr/testify v1.11.1
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
