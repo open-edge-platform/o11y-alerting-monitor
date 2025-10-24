@@ -11,13 +11,47 @@ on:
       - release-*
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
+  pre-checks:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    outputs:
+      filtered_files: ${{ steps.check-files.outputs.filtered_files }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8   # v5.0.0
+        with:
+          persist-credentials: false
+      - name: "Verify Branch Name"
+        uses: open-edge-platform/orch-ci/verify-branch-name@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
+      - name: "Discover Changed Files"
+        id: discover-changed-files
+        uses: open-edge-platform/orch-ci/discover-changed-files@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
+        with:
+          project_folder: "."
+      - name: "Filter Out Unwanted Changed Files"
+        id: check-files
+        env:
+          changed_files: ${{ steps.discover-changed-files.outputs.changed_files }}
+        run: |
+          file_paths_to_remove=$(find .github)
+          file_paths_to_remove+=$(find LICENSES)
+
+          files_to_remove=$(echo "$file_paths_to_remove" | jq -R . | jq -s -c .)
+          filtered_files=$(echo "$changed_files" | jq -cr --argjson files_to_remove "$files_to_remove" 'map(select(. as $item | $files_to_remove | index($item) | not))')
+          echo "filtered_files=${filtered_files}" >> ${GITHUB_OUTPUT}
   pre-merge:
     permissions:
       contents: write
-    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@76700c2fb6d547733b9218d9638dca43f5296399   # 0.1.52
+    needs: pre-checks
+    if: ${{ needs.pre-checks.outputs.filtered_files != '[]' && needs.pre-checks.outputs.filtered_files != '[""]' }}
+    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
     with:
       run_reuse_check: true
       run_version_check: true
@@ -35,3 +69,22 @@ jobs:
       artifacts_path: |
         ./build/coverage.out
         ./build/coverage.xml
+  final-check:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [pre-merge]
+    steps:
+      - name: Final Status Check
+        env:
+          pre_merge_result: ${{ needs.pre-merge.result }}
+        run: |
+          echo "Pre-merge result: $pre_merge_result"
+
+          if [ "$pre_merge_result" == "success" ] || [ "$pre_merge_result" == "skipped" ]; then
+            echo "Pre-merge check passed successfully."
+          else
+            echo "Pre-merge checks failed. PR can't be merged"
+            exit 1
+          fi
