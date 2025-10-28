@@ -15,7 +15,7 @@ require (
 	github.com/magefile/mage v1.15.0
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/oapi-codegen/testutil v1.1.0
-	github.com/onsi/ginkgo/v2 v2.27.1
+	github.com/onsi/ginkgo/v2 v2.27.2
 	github.com/onsi/gomega v1.38.2
 	github.com/prometheus/prometheus v0.307.2
 	github.com/stretchr/testify v1.11.1
@@ -91,7 +91,6 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
-	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
