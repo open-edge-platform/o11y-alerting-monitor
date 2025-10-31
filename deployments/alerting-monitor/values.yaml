@@ -141,6 +141,8 @@ traefik:
   secretName: tls-orch
   tlsOption: gateway-tls
 
+traefikApiGroup: "traefik.containo.us/v1alpha1"
+
 multitenantGatewayEnabled: false
 tenantController:
   namespace: orch-platform
