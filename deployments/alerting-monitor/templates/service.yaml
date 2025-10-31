@@ -50,7 +50,7 @@ spec:
 ---
 # IngressRoute should only be installed when multitenant gateway is disabled.
 {{- if not .Values.multitenantGatewayEnabled }}
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: {{ .Values.traefikApiGroup }}
 kind: IngressRoute
 metadata:
   name: {{ .Chart.Name }}
