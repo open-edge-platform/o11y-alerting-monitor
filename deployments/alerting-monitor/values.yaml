@@ -24,7 +24,7 @@ initialRules:
   appDeploymentRules: true        # alert rules connected with app deployment eg. deployment status
   clusterRules: true              # alert rules connected with cluster eg. cpu usage clusterwide
   evaluationIntervalSeconds: 30         # how often should the rules be evaluated (eg. 30s, 2m, 1h)
-  hostAggregationWindowSeconds: 120       # size of time window for aggregating in host performance rules
+  hostAggregationWindowSeconds: 300       # size of time window for aggregating in host performance rules
   clusterAggregationWindowSeconds: 300    # size of time window for aggregating in cluster performance rules
 
 mimir:
