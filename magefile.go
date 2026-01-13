@@ -80,7 +80,7 @@ func (Gen) License() error {
 		return fmt.Errorf("failed to parse file: %w", err)
 	}
 
-	excludedFiles := make([]string, 0)
+	excludedFiles := make([]string, 0) //nolint:prealloc // Keep current configuration
 	patterns := dep5File.Files[0].Files
 	for _, p := range patterns {
 		p = strings.ReplaceAll(p, ".", "\\.")
@@ -108,7 +108,7 @@ func (Gen) License() error {
 		return slices.Contains(excludedFiles, f)
 	})
 
-	args := []string{"annotate"}
+	args := []string{"annotate"} //nolint:prealloc // Keep current configuration
 	args = append(args, licenseCommonArgs...)
 	args = append(args, files...)
 	return sh.Run("reuse", args...)

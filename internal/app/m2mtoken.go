@@ -93,7 +93,7 @@ func NewM2MAuthenticator(conf config.Config, vault vaultConnection) (*M2MAuthent
 }
 
 func (a *M2MAuthenticator) GetUserList(ctx echo.Context) ([]user, error) {
-	var requestHeaders []header
+	requestHeaders := make([]header, 0, 2)
 
 	m2mToken, err := a.getM2MToken(ctx)
 	if err != nil {
@@ -166,8 +166,8 @@ func (a *M2MAuthenticator) getM2MToken(ctx echo.Context) (string, error) {
 // Function for getting client ID from keycloak.
 func (a *M2MAuthenticator) getClientID(token string) (string, error) {
 	var bearer = "Bearer " + token
-	var requestHeaders []header
-	var queries []query
+	requestHeaders := make([]header, 0, 2)
+	queries := make([]query, 0, 1)
 	requestHeaders = append(
 		requestHeaders,
 		// Token
@@ -217,7 +217,7 @@ func (a *M2MAuthenticator) getClientSecret(clientID string, token string) (strin
 	secretsEndpoint := fmt.Sprintf("%s/admin/realms/%s/clients/%s/client-secret", a.oidcServer, a.oidcRealm, clientID)
 
 	var bearer = "Bearer " + token
-	var requestHeaders []header
+	requestHeaders := make([]header, 0, 2)
 	requestHeaders = append(
 		requestHeaders,
 		// Token
@@ -246,7 +246,7 @@ func (a *M2MAuthenticator) getClientSecret(clientID string, token string) (strin
 
 // Function for getting client token from keycloak.
 func (a *M2MAuthenticator) getClientToken(secret string) (string, error) {
-	var requestHeaders []header
+	requestHeaders := make([]header, 0, 1)
 	requestHeaders = append(requestHeaders, header{"Content-Type", "application/x-www-form-urlencoded"})
 
 	requestData := requestData{
