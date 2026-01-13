@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 {{- $evaluationIntervalSeconds := .Values.initialRules.evaluationIntervalSeconds | default 30 -}}
-{{- $hostAggregationSeconds := .Values.initialRules.hostAggregationWindowSeconds | default 120 -}}
+{{- $hostAggregationSeconds := .Values.initialRules.hostAggregationWindowSeconds | default 300 -}}
 {{- $clusterAggregationSeconds := .Values.initialRules.clusterAggregationWindowSeconds | default 300 -}}
 {{- $interval := printf "%ds" (int $evaluationIntervalSeconds) -}}
 {{- $minduration := printf "%ds" (int $evaluationIntervalSeconds) -}}
@@ -212,7 +212,7 @@ groups:
     interval: {{ $interval | quote }}
     rules:
       - alert: "DiskUsageExceedsThreshold"
-        expr: 'count by (__tenant_id__, hostGuid, host) (avg_over_time(disk_used_percent{}[{{ $hostaggregation }}]) >= [[ .Threshold ]])'
+        expr: 'count by (projectId, hostGuid, host) (avg_over_time(disk_used_percent{}[{{ $hostaggregation }}]) >= [[ .Threshold ]])'
         for: {{ $duration }}
         labels:
           threshold: "85"
@@ -239,7 +239,7 @@ groups:
     interval: {{ $interval | quote }}
     rules:
       - alert: "HostCPUTemperatureExceedsThreshold"
-        expr: 'count by (__tenant_id__, hostGuid, host) (avg_over_time(temp_temp{sensor=~"coretemp_core_.+"}[{{ $hostaggregation }}]) >= [[ .Threshold ]])'
+        expr: 'count by (projectId, hostGuid, host) (avg_over_time(temp_temp{sensor=~"coretemp_core_.+"}[{{ $hostaggregation }}]) >= [[ .Threshold ]])'
         for: {{ $duration }}
         labels:
           threshold: "75"
