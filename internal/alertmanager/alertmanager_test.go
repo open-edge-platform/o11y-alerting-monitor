@@ -23,7 +23,7 @@ const testNamespace = "orch-infra"
 
 func TestGetConfigManifest(t *testing.T) {
 	t.Run("Failed to get alertmanager config secret due to error", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset()
+		fakeClient := testclient.NewClientset()
 
 		fakeClient.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
@@ -35,7 +35,7 @@ func TestGetConfigManifest(t *testing.T) {
 	})
 
 	t.Run("Alertmanager config secret has unexpected name", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "config-secret",
 				Namespace: testNamespace,
@@ -52,7 +52,7 @@ func TestGetConfigManifest(t *testing.T) {
 	})
 
 	t.Run("Alertmanager config secret not in the expected namespace", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: "test-namespace",
@@ -69,7 +69,7 @@ func TestGetConfigManifest(t *testing.T) {
 	})
 
 	t.Run("Alertmanager config secret missing config.yaml field", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
@@ -85,7 +85,7 @@ func TestGetConfigManifest(t *testing.T) {
 	})
 
 	t.Run("Alertmanager config secret `custom.yaml` field content is not YAML format", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
@@ -106,7 +106,7 @@ func TestGetConfigManifest(t *testing.T) {
     email_configs:
     - to: 'test receiver <test@receiver.com>'`)
 
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
@@ -135,7 +135,7 @@ func TestGetConfigManifest(t *testing.T) {
 
 func TestSetConfigManifest(t *testing.T) {
 	t.Run("Failed to get alertmanager config secret", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset()
+		fakeClient := testclient.NewClientset()
 
 		fakeClient.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
@@ -147,7 +147,7 @@ func TestSetConfigManifest(t *testing.T) {
 	})
 
 	t.Run("Alertmanager config secret has unexpected name", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "config-secret",
 				Namespace: testNamespace,
@@ -175,7 +175,7 @@ func TestSetConfigManifest(t *testing.T) {
 	})
 
 	t.Run("Alertmanager config secret not in the expected namespace", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: "test-namespace",
@@ -208,7 +208,7 @@ func TestSetConfigManifest(t *testing.T) {
     email_configs:
     - to: 'test receiver <test@receiver.com>'`)
 
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
@@ -251,7 +251,7 @@ func TestSetConfigManifest(t *testing.T) {
 			},
 		}
 
-		fakeClient := testclient.NewSimpleClientset(secret)
+		fakeClient := testclient.NewClientset(secret)
 
 		require.NoError(t, setConfigManifest(t.Context(), fakeClient, manifest, testNamespace))
 
@@ -263,7 +263,7 @@ func TestSetConfigManifest(t *testing.T) {
 
 func TestReceiverConfig_UpdateReceiverConfig(t *testing.T) {
 	t.Run("FailToGetManifest", func(t *testing.T) {
-		fakeClient := testclient.NewSimpleClientset()
+		fakeClient := testclient.NewClientset()
 
 		fakeClient.PrependReactor("get", "secrets", func(_ ktesting.Action) (handled bool, ret runtime.Object, err error) {
 			return true, nil, errors.New("mock error")
@@ -284,7 +284,7 @@ func TestReceiverConfig_UpdateReceiverConfig(t *testing.T) {
 
 		// mock getting the alertmanager config manifest.
 		// returns an invalid manifest with no routes defined.
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
@@ -332,7 +332,7 @@ route:
     - receiver: tenant-receiver-1`)
 
 		// mock getting the alertmanager config manifest.
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
@@ -379,7 +379,7 @@ route:
     - receiver: tenant-receiver-1`)
 
 		// mock getting the alertmanager config manifest.
-		fakeClient := testclient.NewSimpleClientset(&corev1.Secret{
+		fakeClient := testclient.NewClientset(&corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: testNamespace,
