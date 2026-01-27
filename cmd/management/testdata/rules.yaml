@@ -265,6 +265,7 @@ groups:
           am_threshold: 75
           am_threshold_min: 0
           am_threshold_max: 110
+          am_threshold_unit: Celsius
           am_definition_type: integer
           am_enabled: true
   - name: f44d04eb-8213-4002-b1bc-c0d5c8fa56c6
