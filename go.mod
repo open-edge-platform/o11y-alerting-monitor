@@ -3,7 +3,7 @@ module github.com/open-edge-platform/o11y-alerting-monitor
 go 1.25.5
 
 require (
-	github.com/MicahParks/keyfunc/v3 v3.7.0
+	github.com/MicahParks/keyfunc/v3 v3.8.0
 	github.com/buger/jsonparser v1.1.1
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
