@@ -8,8 +8,8 @@ type: application
 version: 1.7.6
 appVersion: 1.7.6
 annotations:
-  revision: "708d4a2be1f89899256e787631f7d7610ee866b0"
-  created: "2026-02-18T12:25:24Z"
+  revision: "6b55bed2917a103daf5aba2b6667a8da8098c1ba"
+  created: "2026-02-26T12:43:02Z"
 dependencies:
   - name: alertmanager
     condition: import.alertmanager.enabled
