@@ -1,6 +1,6 @@
 module github.com/open-edge-platform/o11y-alerting-monitor
 
-go 1.25.5
+go 1.25.7
 
 require (
 	github.com/MicahParks/keyfunc/v3 v3.8.0
@@ -26,9 +26,9 @@ require (
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.1
-	k8s.io/api v0.35.1
-	k8s.io/apimachinery v0.35.1
-	k8s.io/client-go v0.35.1
+	k8s.io/api v0.35.2
+	k8s.io/apimachinery v0.35.2
+	k8s.io/client-go v0.35.2
 )
 
 require (

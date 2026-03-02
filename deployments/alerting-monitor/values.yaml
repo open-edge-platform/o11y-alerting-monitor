@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 # HPA replica parameters
@@ -106,7 +106,7 @@ alertmanager:
   configmapReload:
     image:
       repository: quay.io/prometheus-operator/prometheus-config-reloader
-      tag: v0.79.2
+      tag: v0.89.0
       pullPolicy: IfNotPresent
     enabled: true
     resources:
