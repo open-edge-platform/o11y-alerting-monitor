@@ -29,10 +29,10 @@ spec:
             - "--log-level={{ .Values.logLevel }}"
           resources:
             requests:
-              cpu: 10m
+              cpu: 300m
               memory: 128Mi
             limits:
-              cpu: '1'
+              cpu: '2'
               memory: 1Gi
           readinessProbe:
             exec:
