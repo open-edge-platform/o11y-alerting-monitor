@@ -5,8 +5,8 @@ apiVersion: v2
 name: alerting-monitor
 description: A Helm chart for Alerting Monitor
 type: application
-version: 1.7.7
-appVersion: 1.7.7
+version: 1.7.8
+appVersion: 1.7.8
 annotations:
   revision: "d041ae72323e039a57aa83fbf83462a39e7e2270"
   created: "2026-03-02T12:00:01Z"
