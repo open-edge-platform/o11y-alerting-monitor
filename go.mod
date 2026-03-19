@@ -4,7 +4,6 @@ go 1.25.7
 
 require (
 	github.com/MicahParks/keyfunc/v3 v3.8.0
-	github.com/buger/jsonparser v1.1.1
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.22.0

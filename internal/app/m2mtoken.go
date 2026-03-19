@@ -11,7 +11,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/buger/jsonparser"
 	"github.com/labstack/echo/v4"
 
 	"github.com/open-edge-platform/o11y-alerting-monitor/internal/config"
@@ -204,12 +203,17 @@ func (a *M2MAuthenticator) getClientID(token string) (string, error) {
 		return "", err
 	}
 
-	clientID, err := jsonparser.GetString(firstJSON, "id")
-	if err != nil {
+	var clientIDJSON struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(firstJSON, &clientIDJSON); err != nil {
 		return "", err
 	}
+	if clientIDJSON.ID == "" {
+		return "", errors.New("client id not found in response")
+	}
 
-	return clientID, nil
+	return clientIDJSON.ID, nil
 }
 
 // Function for getting client secret from keycloak.
@@ -236,12 +240,17 @@ func (a *M2MAuthenticator) getClientSecret(clientID string, token string) (strin
 		return "", err
 	}
 
-	clientsecret, err := jsonparser.GetString(body, "value")
-	if err != nil {
+	var secretJSON struct {
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal(body, &secretJSON); err != nil {
 		return "", err
 	}
+	if secretJSON.Value == "" {
+		return "", errors.New("client secret not found in response")
+	}
 
-	return clientsecret, nil
+	return secretJSON.Value, nil
 }
 
 // Function for getting client token from keycloak.
@@ -261,12 +270,17 @@ func (a *M2MAuthenticator) getClientToken(secret string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	clientToken, err := jsonparser.GetString(body, "access_token")
-	if err != nil {
+	var tokenJSON struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.Unmarshal(body, &tokenJSON); err != nil {
 		return "", err
 	}
+	if tokenJSON.AccessToken == "" {
+		return "", errors.New("access token not found in response")
+	}
 
-	return clientToken, nil
+	return tokenJSON.AccessToken, nil
 }
 
 func sendRequestToOIDC(requestData requestData) ([]byte, error) {
