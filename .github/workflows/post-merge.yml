@@ -61,7 +61,7 @@ jobs:
       statuses: read
     needs: pre-checks
     if: ${{ needs.pre-checks.outputs.filtered_files != '[]' && needs.pre-checks.outputs.filtered_files != '[""]' }}
-    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@46a79df5f6bd707cb10ad1d444682d3286db9b46  # 2026.0.17
+    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@b115a3789da498d0f8ab2584505c0eee623aaad8  # 2026.0.19
     with:
       run_version_check: true
       run_version_tag: true
