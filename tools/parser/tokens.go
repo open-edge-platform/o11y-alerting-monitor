@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
-package parser //nolint:revive // Package name parser is intentional
+package parser //nolint:revive,nolintlint // Package name parser is intentional
 
 import "unicode"
 
