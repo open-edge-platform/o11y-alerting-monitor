@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+// SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
 package app
@@ -141,7 +141,7 @@ func FuzzPatchAlertDefinitionThreshold(f *testing.F) {
 	api.RegisterHandlers(e, handler)
 
 	f.Fuzz(func(t *testing.T, threshold int) {
-		payload := []byte(fmt.Sprintf(`{"values":{"duration":"10m","enabled":"true","threshold":%q}}`,
+		payload := []byte(fmt.Sprintf(`{"values":{"duration":"10m","enabled":"true","threshold":%d}}`,
 			threshold,
 		))
 		t.Logf("Testing with payload: %s\n", string(payload))
