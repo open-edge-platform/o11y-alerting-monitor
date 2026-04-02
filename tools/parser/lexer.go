@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+// SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
 // The MIT License (MIT)
@@ -24,7 +24,7 @@
 
 // This file is based on https://github.com/astrieanna/rose-warmups/tree/master/tasty/lib.
 
-package parser
+package parser //nolint:revive,nolintlint // Package name parser is intentional
 
 import (
 	"bufio"
