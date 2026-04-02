@@ -1,6 +1,6 @@
 module github.com/open-edge-platform/o11y-alerting-monitor
 
-go 1.25.7
+go 1.26.1
 
 require (
 	github.com/MicahParks/keyfunc/v3 v3.8.0
@@ -11,14 +11,14 @@ require (
 	github.com/jmhodges/clock v1.2.0
 	github.com/labstack/echo/v4 v4.15.1
 	github.com/labstack/gommon v0.4.2
-	github.com/magefile/mage v1.17.0
+	github.com/magefile/mage v1.17.1
 	github.com/oapi-codegen/runtime v1.3.1
 	github.com/oapi-codegen/testutil v1.1.0
 	github.com/onsi/ginkgo/v2 v2.28.1
 	github.com/onsi/gomega v1.39.1
 	github.com/prometheus/prometheus v0.310.0
 	github.com/stretchr/testify v1.11.1
-	google.golang.org/grpc v1.79.3
+	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1

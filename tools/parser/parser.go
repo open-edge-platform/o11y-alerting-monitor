@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+// SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
 // The MIT License (MIT)
@@ -24,7 +24,7 @@
 
 // Package parser implements a parser for machine readable debian/copyright format files: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 // This file is based on https://github.com/astrieanna/rose-warmups/tree/master/tasty/lib.
-package parser
+package parser //nolint:revive,nolintlint // Package name parser is intentional
 
 import (
 	"errors"
