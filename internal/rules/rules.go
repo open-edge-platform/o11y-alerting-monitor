@@ -117,7 +117,8 @@ func ParseExpression(data TemplateData, expr string) (string, error) {
 		return "", fmt.Errorf("failed to apply template: %w", err)
 	}
 
-	_, err = parser.ParseExpr(tpl.String())
+	promParser := parser.NewParser(parser.Options{})
+	_, err = promParser.ParseExpr(tpl.String())
 	if err != nil {
 		return "", fmt.Errorf("promql parser failed to parse: %w", err)
 	}
