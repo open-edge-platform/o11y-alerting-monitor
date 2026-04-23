@@ -11,7 +11,7 @@ require (
 	github.com/jmhodges/clock v1.2.0
 	github.com/labstack/echo/v4 v4.15.1
 	github.com/labstack/gommon v0.5.0
-	github.com/magefile/mage v1.17.1
+	github.com/magefile/mage v1.17.2
 	github.com/oapi-codegen/runtime v1.4.0
 	github.com/oapi-codegen/testutil v1.1.0
 	github.com/onsi/ginkgo/v2 v2.28.1
@@ -73,7 +73,7 @@ require (
 	github.com/hashicorp/hcl v1.0.1-vault-7 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.9.0 // indirect
+	github.com/jackc/pgx/v5 v5.9.2 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
