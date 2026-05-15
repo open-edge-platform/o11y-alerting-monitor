@@ -5,13 +5,13 @@ apiVersion: v2
 name: alerting-monitor
 description: A Helm chart for Alerting Monitor
 type: application
-version: 1.7.10
-appVersion: 1.7.10
+version: 1.7.11
+appVersion: 1.7.11
 annotations:
   revision: "39cb521ff2fe2a440651f97af302f19b0cca1e9c"
   created: "2026-04-01T13:34:40Z"
 dependencies:
   - name: alertmanager
     condition: import.alertmanager.enabled
-    version: "1.33.1"
+    version: "1.36.0"
     repository: "https://prometheus-community.github.io/helm-charts"
