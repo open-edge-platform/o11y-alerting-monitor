@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/hashicorp/vault/api/auth/kubernetes v0.12.0
 	github.com/jmhodges/clock v1.2.0
-	github.com/labstack/echo/v4 v4.15.2
+	github.com/labstack/echo/v4 v4.15.3
 	github.com/labstack/gommon v0.5.0
 	github.com/magefile/mage v1.17.2
 	github.com/oapi-codegen/runtime v1.4.1
