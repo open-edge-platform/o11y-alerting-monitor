@@ -15,7 +15,7 @@ require (
 	github.com/oapi-codegen/runtime v1.4.1
 	github.com/oapi-codegen/testutil v1.1.0
 	github.com/onsi/ginkgo/v2 v2.29.0
-	github.com/onsi/gomega v1.41.0
+	github.com/onsi/gomega v1.42.0
 	github.com/prometheus/prometheus v0.312.0
 	github.com/stretchr/testify v1.11.1
 	google.golang.org/grpc v1.81.1
