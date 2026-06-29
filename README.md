@@ -5,6 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 
 # Edge Orchestrator Alerting Monitor
 
+> NOTE!
+> The Edge Manageability Framework has been deprecated and will no longer receive updates or active maintenance, including security fixes.  
+> Feature requests, bug reports, and pull requests will not be reviewed or responded to.  
+> Existing releases and documentation will remain available for reference only.
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/open-edge-platform/o11y-alerting-monitor/badge)](https://scorecard.dev/viewer/?uri=github.com/open-edge-platform/o11y-alerting-monitor)
 
